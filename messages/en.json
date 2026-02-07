@@ -1,0 +1,173 @@
+{
+  "Header": {
+    "browse_venues": "Browse Venues",
+    "how_it_works": "How It Works",
+    "for_owners": "For Owners",
+    "faq": "FAQ",
+    "sign_in": "Sign In",
+    "list_venue": "List Your Venue",
+    "title": "Ahjazli Qaati"
+  },
+  "Hero": {
+    "badge": "Free for Venue Owners",
+    "title_part1": "Find the Perfect",
+    "title_highlight": "Venue",
+    "title_part2": "for Your Event",
+    "subtitle": "Discover wedding halls, salons, and event spaces across Algeria. Connect directly with venue owners and book your dream location.",
+    "cta_browse": "Browse Venues",
+    "cta_list": "List Your Venue",
+    "stats_wilayas": "Wilayas",
+    "stats_venues": "Venues",
+    "stats_categories": "Categories",
+    "stats_free": "For Owners",
+    "stats_free_label": "Free"
+  },
+  "HowItWorks": {
+    "badge": "How It Works",
+    "title_part1": "Simple Steps to",
+    "title_highlight": "Get Started",
+    "subtitle": "Whether you're looking for a venue or listing one, we make it easy.",
+    "customer": {
+      "title": "For Customers",
+      "step1_title": "Browse Venues",
+      "step1_desc": "Explore hundreds of venues. Filter by location, category, capacity, and price range.",
+      "step2_title": "View Details",
+      "step2_desc": "Check out photos, videos, amenities, and all the information you need about each venue.",
+      "step3_title": "Contact Owner",
+      "step3_desc": "Reach out directly via WhatsApp, phone, or social media. Book your perfect venue!",
+      "cta": "Find Venues"
+    },
+    "owner": {
+      "title": "For Venue Owners",
+      "step1_title": "Register Free",
+      "step1_desc": "Create your account in minutes. It's completely free for venue owners.",
+      "step2_title": "Add Your Venue",
+      "step2_desc": "Upload photos, videos, and details. Showcase what makes your venue special.",
+      "step3_title": "Get Inquiries",
+      "step3_desc": "Receive direct inquiries from interested customers. Grow your business!",
+      "cta": "List Your Venue Free"
+    }
+  },
+  "Features": {
+    "badge": "Why Choose Us",
+    "title_part1": "Everything You Need to Find",
+    "title_highlight": "Your Venue",
+    "subtitle": "We make it simple to discover, compare, and book the perfect venue for your special event.",
+    "items": {
+      "discovery_title": "Easy Venue Discovery",
+      "discovery_desc": "Browse hundreds of venues across all 58 wilayas of Algeria. Find the perfect space for your event in minutes.",
+      "contact_title": "Direct Owner Contact",
+      "contact_desc": "Connect instantly with venue owners via WhatsApp, phone, or social media. No intermediaries, no hidden fees.",
+      "filtering_title": "Location-Based Filtering",
+      "filtering_desc": "Filter venues by wilaya, city, or neighborhood. Find venues near you or in your preferred location.",
+      "media_title": "Rich Media Galleries",
+      "media_desc": "View high-quality photos and videos of each venue. Get a real feel for the space before you visit.",
+      "listing_title": "Free Venue Listing",
+      "listing_desc": "Venue owners can list their spaces for free. Reach thousands of potential customers at no cost.",
+      "response_title": "Quick Response",
+      "response_desc": "Get fast responses from venue owners. Most inquiries are answered within hours, not days."
+    },
+    "cta": "Explore All Venues"
+  },
+  "Pricing": {
+    "badge": "For Venue Owners",
+    "title_part1": "Free to List,",
+    "title_highlight": "Free to Grow",
+    "subtitle": "We believe venue owners should focus on their business, not platform fees.",
+    "offer_badge": "Limited Time Offer",
+    "price": "FREE",
+    "price_subtitle": "No credit card required",
+    "benefits": {
+      "reach_title": "Reach More Customers",
+      "reach_desc": "Get your venue in front of thousands of people looking for event spaces.",
+      "fees_title": "No Platform Fees",
+      "fees_desc": "Keep 100% of your bookings. We don't charge any commission.",
+      "management_title": "Easy Management",
+      "management_desc": "Simple dashboard to manage your venue listing and inquiries.",
+      "performance_title": "Track Performance",
+      "performance_desc": "See how many views and inquiries your venue receives."
+    },
+    "features_list": {
+      "photos": "Unlimited Photos",
+      "video": "Video Upload",
+      "contact": "Contact Info Display",
+      "social": "Social Media Links",
+      "analytics": "Analytics Dashboard",
+      "inquiries": "Direct Inquiries"
+    },
+    "cta": "Start Listing Now",
+    "trust_message": "Join hundreds of venue owners already growing their business with us."
+  },
+  "FAQ": {
+    "badge": "FAQ",
+    "title_part1": "Frequently Asked",
+    "title_highlight": "Questions",
+    "subtitle": "Everything you need to know about listing your venue.",
+    "items": {
+      "list_q": "How do I list my venue on the platform?",
+      "list_a": "Simply create a free account, fill in your venue details, upload photos and videos, and submit for review. Once approved, your venue will be visible to thousands of potential customers.",
+      "free_q": "Is it really free for venue owners?",
+      "free_a": "Yes! Listing your venue is completely free. We don't charge any subscription fees, commission, or hidden costs. You keep 100% of your bookings.",
+      "approval_q": "How long does the approval process take?",
+      "approval_a": "We review new venue listings within 24-48 hours. Make sure to provide accurate information and quality photos to speed up the approval process.",
+      "contact_q": "How do customers contact me?",
+      "contact_a": "Customers can contact you directly through the contact information you provide - phone, WhatsApp, email, or social media links. We display all your contact options on your venue page.",
+      "edit_q": "Can I edit my venue listing after it's published?",
+      "edit_a": "Absolutely! You can update your venue photos, description, pricing, and contact information anytime through your dashboard. Major changes may require re-approval.",
+      "types_q": "What types of venues can I list?",
+      "types_a": "We accept all types of event venues including wedding halls, salons, conference rooms, gardens, villas, hotel ballrooms, restaurants with event spaces, and rooftops.",
+      "safe_q": "Is my information safe?",
+      "safe_a": "Yes, we take security seriously. Your personal information is protected and only the contact details you choose to display will be visible to customers.",
+      "visibility_q": "How can I get more visibility for my venue?",
+      "visibility_a": "Complete your profile with high-quality photos and videos, respond quickly to inquiries, and encourage satisfied customers to spread the word. We'll introduce premium features soon!"
+    },
+    "contact_title": "Still have questions?",
+    "contact_subtitle": "Can't find the answer you're looking for? We're here to help.",
+    "contact_cta": "Contact Support"
+  },
+  "DisplayCards": {
+    "featured": {
+      "title": "Featured",
+      "description": "Discover amazing content",
+      "date": "Just now"
+    },
+    "popular": {
+      "title": "Popular",
+      "description": "Trending this week",
+      "date": "2 days ago"
+    },
+    "new": {
+      "title": "New",
+      "description": "Latest updates and features",
+      "date": "Today"
+    }
+  },
+  "Footer": {
+    "description": "The #1 marketplace for event venues in Algeria. Find or list your venue today.",
+    "platform": "Platform",
+    "categories": "Categories",
+    "locations": "Locations",
+    "support": "Support",
+    "copyright": "Ahjazli Qaati. All rights reserved.",
+    "made_with": "Made with",
+    "in_algeria": "in Algeria",
+    "links": {
+      "browse_venues": "Browse Venues",
+      "list_venue": "List Your Venue",
+      "how_it_works": "How It Works",
+      "for_owners": "For Owners",
+      "wedding_halls": "Wedding Halls",
+      "event_salons": "Event Salons",
+      "conference_rooms": "Conference Rooms",
+      "outdoor_venues": "Outdoor Venues",
+      "algiers": "Algiers",
+      "oran": "Oran",
+      "constantine": "Constantine",
+      "all_wilayas": "All Wilayas",
+      "faq": "FAQ",
+      "contact_us": "Contact Us",
+      "privacy_policy": "Privacy Policy",
+      "terms_of_service": "Terms of Service"
+    }
+  }
+}

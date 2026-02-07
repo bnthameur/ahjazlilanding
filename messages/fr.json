@@ -1,0 +1,173 @@
+{
+    "Header": {
+        "browse_venues": "Explorer les Salles",
+        "how_it_works": "Comment ça marche",
+        "for_owners": "Pour les Propriétaires",
+        "faq": "FAQ",
+        "sign_in": "Se Connecter",
+        "list_venue": "Ajouter votre Salle",
+        "title": "Ahjazli Qaati"
+    },
+    "Hero": {
+        "badge": "Gratuit pour les Propriétaires",
+        "title_part1": "Trouvez la",
+        "title_highlight": "Salle Parfaite",
+        "title_part2": "pour votre Événement",
+        "subtitle": "Découvrez des salles des fêtes, des salons et des espaces événementiels en Algérie. Connectez-vous directement avec les propriétaires et réservez le lieu de vos rêves.",
+        "cta_browse": "Explorer les Salles",
+        "cta_list": "Ajouter votre Salle",
+        "stats_wilayas": "Wilayas",
+        "stats_venues": "Salles",
+        "stats_categories": "Catégories",
+        "stats_free": "Pour les Propriétaires",
+        "stats_free_label": "Gratuit"
+    },
+    "HowItWorks": {
+        "badge": "Comment ça marche",
+        "title_part1": "Étapes simples pour",
+        "title_highlight": "Commencer",
+        "subtitle": "Que vous cherchiez une salle ou que vous en inscriviez une, nous vous facilitons la tâche.",
+        "customer": {
+            "title": "Pour les Clients",
+            "step1_title": "Explorer les Salles",
+            "step1_desc": "Explorez des centaines de salles. Filtrez par lieu, catégorie, capacité et gamme de prix.",
+            "step2_title": "Voir les Détails",
+            "step2_desc": "Consultez des photos, des vidéos, des équipements et toutes les informations dont vous avez besoin.",
+            "step3_title": "Contacter le Propriétaire",
+            "step3_desc": "Contactez directement via WhatsApp, téléphone ou réseaux sociaux. Réservez votre salle parfaite !",
+            "cta": "Trouver des Salles"
+        },
+        "owner": {
+            "title": "Pour les Propriétaires",
+            "step1_title": "Inscription Gratuite",
+            "step1_desc": "Créez votre compte en quelques minutes. C'est totalement gratuit pour les propriétaires.",
+            "step2_title": "Ajoutez Votre Salle",
+            "step2_desc": "Téléchargez des photos, des vidéos et des détails. Mettez en valeur ce qui rend votre salle spéciale.",
+            "step3_title": "Recevez des Demandes",
+            "step3_desc": "Recevez des demandes directes de clients intéressés. Développez votre entreprise !",
+            "cta": "Ajoutez Votre Salle"
+        }
+    },
+    "Features": {
+        "badge": "Pourquoi Nous Choisir",
+        "title_part1": "Tout ce dont vous avez besoin pour trouver",
+        "title_highlight": "Votre Salle",
+        "subtitle": "Nous facilitons la découverte, la comparaison et la réservation de la salle parfaite pour votre événement spécial.",
+        "items": {
+            "discovery_title": "Découverte Facile",
+            "discovery_desc": "Parcourez des centaines de salles à travers les 58 wilayas d'Algérie. Trouvez l'espace parfait en quelques minutes.",
+            "contact_title": "Contact Direct",
+            "contact_desc": "Connectez-vous instantanément avec les propriétaires via WhatsApp, téléphone ou réseaux sociaux. Pas d'intermédiaires, pas de frais cachés.",
+            "filtering_title": "Filtrage par Lieu",
+            "filtering_desc": "Filtrez les salles par wilaya, ville ou quartier. Trouvez des salles près de chez vous.",
+            "media_title": "Galeries Multimédias Riches",
+            "media_desc": "Visualisez des photos et vidéos de haute qualité de chaque salle. Faites-vous une idée réelle de l'espace.",
+            "listing_title": "Inscription Gratuite",
+            "listing_desc": "Les propriétaires peuvent inscrire leurs espaces gratuitement. Touchez des milliers de clients potentiels sans frais.",
+            "response_title": "Réponse Rapide",
+            "response_desc": "Obtenez des réponses rapides des propriétaires. La plupart des demandes reçoivent une réponse en quelques heures."
+        },
+        "cta": "Explorer Toutes les Salles"
+    },
+    "Pricing": {
+        "badge": "Pour les Propriétaires",
+        "title_part1": "Gratuit pour Lister,",
+        "title_highlight": "Gratuit pour Grandir",
+        "subtitle": "Nous croyons que les propriétaires devraient se concentrer sur leur entreprise, pas sur les frais de plateforme.",
+        "offer_badge": "Offre Limitée",
+        "price": "GRATUIT",
+        "price_subtitle": "Aucune carte de crédit requise",
+        "benefits": {
+            "reach_title": "Atteignez Plus de Clients",
+            "reach_desc": "Présentez votre salle à des milliers de personnes recherchant des espaces événementiels.",
+            "fees_title": "Aucun Frais de Plateforme",
+            "fees_desc": "Gardez 100% de vos réservations. Nous ne facturons aucune commission.",
+            "management_title": "Gestion Facile",
+            "management_desc": "Tableau de bord simple pour gérer votre annonce et vos demandes.",
+            "performance_title": "Suivez les Performances",
+            "performance_desc": "Voyez combien de vues et de demandes votre salle reçoit."
+        },
+        "features_list": {
+            "photos": "Photos Illimitées",
+            "video": "Téléchargement de Vidéo",
+            "contact": "Affichage des Contacts",
+            "social": "Liens Réseaux Sociaux",
+            "analytics": "Tableau de Bord Analytique",
+            "inquiries": "Demandes Directes"
+        },
+        "cta": "Commencer Maintenant",
+        "trust_message": "Rejoignez des centaines de propriétaires qui développent déjà leur entreprise avec nous."
+    },
+    "FAQ": {
+        "badge": "FAQ",
+        "title_part1": "Questions Fréquemment",
+        "title_highlight": "Posées",
+        "subtitle": "Tout ce que vous devez savoir sur l'inscription de votre salle.",
+        "items": {
+            "list_q": "Comment inscrire ma salle sur la plateforme ?",
+            "list_a": "Créez simplement un compte gratuit, remplissez les détails de votre salle, téléchargez des photos/vidéos et soumettez pour examen.",
+            "free_q": "Est-ce vraiment gratuit pour les propriétaires ?",
+            "free_a": "Oui ! L'inscription est totalement gratuite. Nous ne facturons aucun frais d'abonnement ou de commission.",
+            "approval_q": "Combien de temps prend le processus d'approbation ?",
+            "approval_a": "Nous examinons les nouvelles annonces sous 24-48 heures. Assurez-vous de fournir des informations précises.",
+            "contact_q": "Comment les clients me contactent-ils ?",
+            "contact_a": "Les clients vous contactent directement via les informations que vous fournissez (téléphone, WhatsApp, e-mail).",
+            "edit_q": "Puis-je modifier mon annonce après sa publication ?",
+            "edit_a": "Absolument ! Vous pouvez mettre à jour photos, description, prix et contacts à tout moment via votre tableau de bord.",
+            "types_q": "Quels types de salles puis-je inscrire ?",
+            "types_a": "Nous acceptons tous types de lieux : salles des fêtes, salons, salles de conférence, jardins, villas, etc.",
+            "safe_q": "Mes informations sont-elles en sécurité ?",
+            "safe_a": "Oui, nous prenons la sécurité au sérieux. Seules les coordonnées que vous choisissez d'afficher seront visibles.",
+            "visibility_q": "Comment obtenir plus de visibilité ?",
+            "visibility_a": "Complétez votre profil avec des photos de haute qualité et répondez rapidement aux demandes."
+        },
+        "contact_title": "Vous avez encore des questions ?",
+        "contact_subtitle": "Vous ne trouvez pas la réponse que vous cherchez ? Nous sommes là pour aider.",
+        "contact_cta": "Contacter le Support"
+    },
+    "DisplayCards": {
+        "featured": {
+            "title": "En Vedette",
+            "description": "Découvrez du contenu incroyable",
+            "date": "À l'instant"
+        },
+        "popular": {
+            "title": "Populaire",
+            "description": "Tendance cette semaine",
+            "date": "Il y a 2 jours"
+        },
+        "new": {
+            "title": "Nouveau",
+            "description": "Dernières mises à jour",
+            "date": "Aujourd'hui"
+        }
+    },
+    "Footer": {
+        "description": "Le n°1 des salles de fêtes en Algérie. Trouvez ou inscrivez votre salle aujourd'hui.",
+        "platform": "Plateforme",
+        "categories": "Catégories",
+        "locations": "Lieux",
+        "support": "Support",
+        "copyright": "Ahjazli Qaati. Tous droits réservés.",
+        "made_with": "Fait avec",
+        "in_algeria": "en Algérie",
+        "links": {
+            "browse_venues": "Explorer les Salles",
+            "list_venue": "Ajouter votre Salle",
+            "how_it_works": "Comment ça marche",
+            "for_owners": "Pour les Propriétaires",
+            "wedding_halls": "Salles des Fêtes",
+            "event_salons": "Salons Événementiels",
+            "conference_rooms": "Salles de Conférence",
+            "outdoor_venues": "Espaces Extérieurs",
+            "algiers": "Alger",
+            "oran": "Oran",
+            "constantine": "Constantine",
+            "all_wilayas": "Toutes les Wilayas",
+            "faq": "FAQ",
+            "contact_us": "Contactez-nous",
+            "privacy_policy": "Politique de Confidentialité",
+            "terms_of_service": "Conditions d'Utilisation"
+        }
+    }
+}
