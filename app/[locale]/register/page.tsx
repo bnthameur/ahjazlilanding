@@ -15,7 +15,7 @@ export default function RegisterPage() {
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href={`/${locale}/login`}
+            href="/login"
             className="px-6 py-3 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Sign In
