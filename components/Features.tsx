@@ -100,7 +100,7 @@ export default function Features() {
           className="text-center mt-12 sm:mt-16"
         >
           <a
-            href={`http://localhost:3001/${locale}/salles`}
+            href={`/${locale}/salles`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-all duration-200"
           >
             {t('cta')}

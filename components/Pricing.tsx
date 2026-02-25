@@ -115,7 +115,7 @@ export default function Pricing() {
 
               {/* CTA */}
               <a
-                href={`http://localhost:3001/${locale}/register`}
+                href={`/${locale}/register`}
                 className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-slate-100 text-primary-600 font-bold rounded-xl text-lg transition-all duration-200"
               >
                 {t('cta')}
