@@ -23,7 +23,7 @@ export default function Header() {
   }, []);
 
   const navigation = [
-    { name: t('browse_venues'), href: `/${locale}/salles` },
+    { name: t('browse_venues'), href: '/salles' },
     { name: t('how_it_works'), href: '/#how-it-works' }, // Internal anchor, handled by Link
     { name: t('for_owners'), href: '/#pricing' },
     { name: t('faq'), href: '/#faq' },
