@@ -12,6 +12,10 @@ export default function LoginPage() {
   const locale = useLocale();
   const supabase = createClient();
   const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
+  const rawVenueUrl = process.env.NEXT_PUBLIC_VENUE_APP_URL?.replace(/\/$/, '');
+  const venueAppUrl = !rawVenueUrl || rawVenueUrl.includes('localhost') || rawVenueUrl.includes('127.0.0.1') || rawVenueUrl.includes('.railway.internal')
+    ? 'https://ahjazlivenue-production.up.railway.app'
+    : rawVenueUrl;
   const productionFallbackUrl = 'https://ahjazlilanding-production.up.railway.app';
 
   const getAppUrl = () => {
@@ -34,11 +38,11 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
-    const appUrl = getAppUrl();
+    const oauthCallbackUrl = `${venueAppUrl}/auth/callback`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${appUrl}/${locale}/auth/callback`,
+        redirectTo: oauthCallbackUrl,
       },
     });
     if (error) {
