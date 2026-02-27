@@ -12,8 +12,24 @@ export default function LoginPage() {
   const locale = useLocale();
   const supabase = createClient();
   const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
+  const productionFallbackUrl = 'https://ahjazlilanding-production.up.railway.app';
 
-  const getAppUrl = () => configuredSiteUrl || window.location.origin;
+  const getAppUrl = () => {
+    const runtimeOrigin = window.location.origin;
+    const normalizedConfigured = configuredSiteUrl && !configuredSiteUrl.includes('localhost')
+      ? configuredSiteUrl
+      : null;
+
+    if (normalizedConfigured) {
+      return normalizedConfigured;
+    }
+
+    if (runtimeOrigin.includes('localhost')) {
+      return productionFallbackUrl;
+    }
+
+    return runtimeOrigin;
+  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
