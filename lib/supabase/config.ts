@@ -1,9 +1,10 @@
 export function getSupabaseUrl() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!url) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL');
+  if (url) {
+    return url;
   }
-  return url;
+
+  return 'https://nrsmpjrtagtrieujwhya.supabase.co';
 }
 
 export function getSupabasePublicKey() {
@@ -11,11 +12,9 @@ export function getSupabasePublicKey() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!key) {
-    throw new Error(
-      'Missing Supabase public key. Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY.'
-    );
+  if (key) {
+    return key;
   }
 
-  return key;
+  return 'sb_publishable_VvKqNyO36xE5Kbzg32zFiw_6ROLkVWJ';
 }
