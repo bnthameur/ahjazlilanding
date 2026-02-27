@@ -15,7 +15,7 @@ export default function Footer() {
     const footerLinks = {
         platform: [
             { name: t('links.browse_venues'), href: `${venueAppUrl}` },
-            { name: t('links.list_venue'), href: `/${locale}/register` },
+            { name: t('links.list_venue'), href: '/register' },
             { name: t('links.how_it_works'), href: '/#how-it-works' },
             { name: t('links.for_owners'), href: '/#pricing' },
         ],
