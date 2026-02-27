@@ -22,10 +22,8 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const appUrl = 'https://app.ahjazliqaati.com';
-
   const navigation = [
-    { name: t('browse_venues'), href: `${appUrl}/${locale}/salles` },
+    { name: t('browse_venues'), href: `/${locale}/salles` },
     { name: t('how_it_works'), href: '/#how-it-works' },
     { name: t('for_owners'), href: '/#pricing' },
     { name: t('faq'), href: '/#faq' },
@@ -103,13 +101,13 @@ export default function Header() {
             </div>
 
             <a
-              href={`${appUrl}/${locale}/login`}
+              href={`/${locale}/login`}
               className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
               {t('sign_in')}
             </a>
             <a
-              href={`${appUrl}/${locale}/register`}
+              href={`/${locale}/register`}
               className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-all duration-200"
             >
               {t('list_venue')}
@@ -182,14 +180,14 @@ export default function Header() {
 
               <div className="pt-4 space-y-2 border-t border-slate-100 mt-4">
                 <a
-                  href={`${appUrl}/${locale}/login`}
+                  href={`/${locale}/login`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block w-full px-4 py-3 text-center text-base font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg transition-colors"
                 >
                   {t('sign_in')}
                 </a>
                 <a
-                  href={`${appUrl}/${locale}/register`}
+                  href={`/${locale}/register`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block w-full px-4 py-3 text-center text-base font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                 >

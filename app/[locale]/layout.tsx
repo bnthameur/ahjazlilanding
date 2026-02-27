@@ -6,7 +6,7 @@ import EmojiProvider from '@/components/EmojiProvider';
 import { routing } from '@/i18n/navigation';
 import './globals.css';
 
-const siteUrl = 'https://ahjazliqaati.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazlilanding-production.up.railway.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -113,7 +113,7 @@ export default async function RootLayout({
                 'Discover wedding halls, salons, conference rooms and event spaces across all 58 wilayas of Algeria.',
               potentialAction: {
                 '@type': 'SearchAction',
-                target: `https://app.ahjazliqaati.com/{locale}/salles?q={search_term_string}`,
+                target: `${siteUrl}/{locale}/salles?q={search_term_string}`,
                 'query-input': 'required name=search_term_string',
               },
             }),
