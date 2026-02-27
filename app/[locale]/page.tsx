@@ -15,7 +15,9 @@ export default function Home({
   searchParams: { code?: string };
 }) {
   if (searchParams?.code) {
-    redirect(`/${locale}/auth/callback?code=${encodeURIComponent(searchParams.code)}`);
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://ahjazlilanding-production.up.railway.app';
+    const callbackUrl = `${siteUrl}/${locale}/auth/callback?code=${encodeURIComponent(searchParams.code)}`;
+    redirect(callbackUrl);
   }
 
   return (

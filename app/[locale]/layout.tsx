@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { arabicFont } from '@/lib/fonts';
 import EmojiProvider from '@/components/EmojiProvider';
 import { routing } from '@/i18n/navigation';
+import OAuthFixer from '@/components/OAuthFixer';
 import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazlilanding-production.up.railway.app';
@@ -121,6 +122,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${fontClass} antialiased`}>
+        <OAuthFixer />
         <NextIntlClientProvider messages={messages}>
           <EmojiProvider>
             {children}
