@@ -15,6 +15,16 @@ export default async function SallesPage({
     redirect(`/${locale}/login`);
   }
 
-  const venueBaseUrl = (process.env.NEXT_PUBLIC_VENUE_APP_URL || 'https://ahjazlivenue.railway.internal').replace(/\/$/, '');
-  redirect(`${venueBaseUrl}/${locale}/salles`);
+  const configuredVenueUrl = process.env.NEXT_PUBLIC_VENUE_APP_URL?.replace(/\/$/, '');
+  const isInvalidExternalUrl =
+    !configuredVenueUrl ||
+    configuredVenueUrl.includes('localhost') ||
+    configuredVenueUrl.includes('127.0.0.1') ||
+    configuredVenueUrl.includes('.railway.internal');
+
+  if (isInvalidExternalUrl) {
+    redirect(`/${locale}`);
+  }
+
+  redirect(`${configuredVenueUrl}/${locale}/salles`);
 }

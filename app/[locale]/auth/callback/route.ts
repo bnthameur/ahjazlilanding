@@ -10,6 +10,7 @@ export async function GET(
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const locale = params.locale ?? 'en';
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazlilanding-production.up.railway.app').replace(/\/$/, '');
 
   if (code) {
     const cookieStore = cookies();
@@ -34,5 +35,5 @@ export async function GET(
   }
 
   // Redirect to salles page after successful login
-  return NextResponse.redirect(new URL(`/${locale}/salles`, requestUrl.origin));
+  return NextResponse.redirect(new URL(`/${locale}/salles`, siteUrl));
 }
