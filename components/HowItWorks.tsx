@@ -114,7 +114,7 @@ export default function HowItWorks() {
             </div>
 
             <a
-              href={`https://app.ahjazliqaati.com/${locale}/salles`}
+              href={`/${locale}/salles`}
               className="mt-8 w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-all duration-200"
             >
               {t('customer.cta')}
@@ -162,7 +162,7 @@ export default function HowItWorks() {
             </div>
 
             <a
-              href={`https://app.ahjazliqaati.com/${locale}/register`}
+              href={`/${locale}/register`}
               className="mt-8 w-full flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-slate-100 text-primary-600 font-semibold rounded-lg transition-all duration-200"
             >
               {t('owner.cta')}

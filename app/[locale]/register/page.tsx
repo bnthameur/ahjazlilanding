@@ -5,5 +5,5 @@ export default function RegisterPage({
 }: {
   params: { locale: string };
 }) {
-  redirect(`https://app.ahjazliqaati.com/${locale}/register`);
+  redirect(`/${locale}/login`);
 }

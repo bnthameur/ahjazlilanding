@@ -1,9 +1,20 @@
 import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 
-export default function SallesPage({
+export default async function SallesPage({
   params: { locale },
 }: {
   params: { locale: string };
 }) {
-  redirect(`https://app.ahjazliqaati.com/${locale}/salles`);
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect(`/${locale}/login`);
+  }
+
+  const venueBaseUrl = (process.env.NEXT_PUBLIC_VENUE_APP_URL || 'https://ahjazlivenue.railway.internal').replace(/\/$/, '');
+  redirect(`${venueBaseUrl}/${locale}/salles`);
 }

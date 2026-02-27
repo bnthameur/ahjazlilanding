@@ -12,11 +12,10 @@ export default function LoginPage() {
   const locale = useLocale();
   const supabase = createClient();
 
-  const appUrl = 'https://app.ahjazliqaati.com';
-
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
+    const appUrl = window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -37,6 +36,7 @@ export default function LoginPage() {
     const email = (form.elements.namedItem('email') as HTMLInputElement).value;
     const password = (form.elements.namedItem('password') as HTMLInputElement).value;
 
+    const appUrl = window.location.origin;
     const { error } = isLogin
       ? await supabase.auth.signInWithPassword({ email, password })
       : await supabase.auth.signUp({
