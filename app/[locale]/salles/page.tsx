@@ -24,5 +24,5 @@ export default async function SallesPage({
     configuredVenueUrl.includes('.railway.internal');
 
   const venueBaseUrl = isInvalidExternalUrl ? publicVenueFallbackUrl : configuredVenueUrl;
-  redirect(`${venueBaseUrl}`);
+  redirect(`${venueBaseUrl}/${locale}/salles`);
 }

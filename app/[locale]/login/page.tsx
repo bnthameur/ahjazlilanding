@@ -68,7 +68,7 @@ export default function LoginPage() {
     if (error) {
       setError(error.message);
     } else if (isLogin) {
-      window.location.href = `${appUrl}/${locale}`;
+      window.location.href = `${appUrl}/${locale}/salles`;
     } else {
       setError('Check your email for the confirmation link.');
     }
