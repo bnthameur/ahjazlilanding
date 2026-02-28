@@ -169,5 +169,29 @@
             "privacy_policy": "سياسة الخصوصية",
             "terms_of_service": "شروط الخدمة"
         }
+    },
+    "VenuesList": {
+        "badge": "تصفح القاعات",
+        "title": "تصفح القاعات",
+        "subtitle": "اعثر على المكان المثالي لمناسبتك في الجزائر",
+        "empty": "لم يتم العثور على قاعات.",
+        "try_different": "حاول تعديل الفلاتر أو البحث.",
+        "view_details": "عرض التفاصيل",
+        "view_all": "عرض جميع القاعات",
+        "search_placeholder": "ابحث عن قاعات بالاسم أو الوصف...",
+        "all_locations": "جميع المواقع",
+        "filters": "الفلاتر",
+        "results_count": "{count} قاعة",
+        "categories": {
+            "all": "الكل",
+            "wedding_hall": "قاعة أفراح",
+            "event_salon": "صالون مناسبات",
+            "conference_room": "قاعة مؤتمرات",
+            "garden_outdoor": "حديقة / في الهواء الطلق",
+            "villa": "فيلا",
+            "hotel_ballroom": "قاعة فندق",
+            "restaurant": "مطعم",
+            "rooftop": "سطح"
+        }
     }
 }

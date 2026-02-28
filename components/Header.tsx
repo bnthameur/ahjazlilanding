@@ -1,19 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import Link from 'next/link'; // Replaced by custom Link
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const VENUE_APP_URL = 'https://app.ahjazliqaati.com';
 
 export default function Header() {
   const t = useTranslations('Header');
   const locale = useLocale();
   const pathname = usePathname();
-  const rawVenueUrl = process.env.NEXT_PUBLIC_VENUE_APP_URL?.replace(/\/$/, '');
-  const venueAppUrl = !rawVenueUrl || rawVenueUrl.includes('localhost') || rawVenueUrl.includes('127.0.0.1') || rawVenueUrl.includes('.railway.internal')
-    ? 'https://ahjazlivenue-production.up.railway.app'
-    : rawVenueUrl;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -27,7 +24,7 @@ export default function Header() {
   }, []);
 
   const navigation = [
-    { name: t('browse_venues'), href: `${venueAppUrl}` },
+    { name: t('browse_venues'), href: '/#explore' },
     { name: t('how_it_works'), href: '/#how-it-works' },
     { name: t('for_owners'), href: '/#pricing' },
     { name: t('faq'), href: '/#faq' },
@@ -53,23 +50,13 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             {navigation.map((item) => (
-              item.href.startsWith('http') ? (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all duration-200"
-                >
-                  {item.name}
-                </a>
-              ) : (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all duration-200"
-                >
-                  {item.name}
-                </Link>
-              )
+              <a
+                key={item.name}
+                href={item.href}
+                className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary-600 rounded-lg hover:bg-primary-50 transition-all duration-200"
+              >
+                {item.name}
+              </a>
             ))}
           </nav>
 
@@ -105,13 +92,13 @@ export default function Header() {
             </div>
 
             <a
-              href={`/${locale}/login`}
+              href={`${VENUE_APP_URL}/${locale}/login`}
               className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
               {t('sign_in')}
             </a>
             <a
-              href={`/${locale}/register`}
+              href={`${VENUE_APP_URL}/${locale}/register`}
               className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-all duration-200"
             >
               {t('list_venue')}
@@ -145,25 +132,14 @@ export default function Header() {
           >
             <div className="px-4 py-4 space-y-1">
               {navigation.map((item) => (
-                item.href.startsWith('http') ? (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-3 text-base font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                  >
-                    {item.name}
-                  </a>
-                ) : (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="block px-4 py-3 text-base font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                  >
-                    {item.name}
-                  </Link>
-                )
+                <a
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block px-4 py-3 text-base font-medium text-slate-600 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                >
+                  {item.name}
+                </a>
               ))}
               {/* Mobile Language Switcher */}
               <div className="px-4 py-3 border-t border-slate-100 mt-2">
@@ -184,14 +160,14 @@ export default function Header() {
 
               <div className="pt-4 space-y-2 border-t border-slate-100 mt-4">
                 <a
-                  href={`/${locale}/login`}
+                  href={`${VENUE_APP_URL}/${locale}/login`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block w-full px-4 py-3 text-center text-base font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg transition-colors"
                 >
                   {t('sign_in')}
                 </a>
                 <a
-                  href={`/${locale}/register`}
+                  href={`${VENUE_APP_URL}/${locale}/register`}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="block w-full px-4 py-3 text-center text-base font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                 >

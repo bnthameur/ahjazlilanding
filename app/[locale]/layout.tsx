@@ -4,10 +4,10 @@ import { getMessages } from 'next-intl/server';
 import { arabicFont } from '@/lib/fonts';
 import EmojiProvider from '@/components/EmojiProvider';
 import { routing } from '@/i18n/navigation';
-import OAuthFixer from '@/components/OAuthFixer';
+// Auth is handled by the venue app (app.ahjazliqaati.com)
 import './globals.css';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazlilanding-production.up.railway.app';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazliqaati.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -122,7 +122,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${fontClass} antialiased`}>
-        <OAuthFixer />
+
         <NextIntlClientProvider messages={messages}>
           <EmojiProvider>
             {children}

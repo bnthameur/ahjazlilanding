@@ -169,5 +169,29 @@
       "privacy_policy": "Privacy Policy",
       "terms_of_service": "Terms of Service"
     }
+  },
+  "VenuesList": {
+    "badge": "Explore Venues",
+    "title": "Explore Venues",
+    "subtitle": "Find the perfect place for your event across Algeria",
+    "empty": "No venues found.",
+    "try_different": "Try adjusting your filters or search query.",
+    "view_details": "View Details",
+    "view_all": "View All Venues",
+    "search_placeholder": "Search venues by name or description...",
+    "all_locations": "All Locations",
+    "filters": "Filters",
+    "results_count": "{count} venues found",
+    "categories": {
+      "all": "All",
+      "wedding_hall": "Wedding Hall",
+      "event_salon": "Event Salon",
+      "conference_room": "Conference Room",
+      "garden_outdoor": "Garden / Outdoor",
+      "villa": "Villa",
+      "hotel_ballroom": "Hotel Ballroom",
+      "restaurant": "Restaurant",
+      "rooftop": "Rooftop"
+    }
   }
 }

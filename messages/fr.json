@@ -169,5 +169,29 @@
             "privacy_policy": "Politique de Confidentialité",
             "terms_of_service": "Conditions d'Utilisation"
         }
+    },
+    "VenuesList": {
+        "badge": "Explorer les Salles",
+        "title": "Explorer les Salles",
+        "subtitle": "Trouvez l'endroit idéal pour votre événement en Algérie",
+        "empty": "Aucune salle trouvée.",
+        "try_different": "Essayez d'ajuster vos filtres ou votre recherche.",
+        "view_details": "Voir les Détails",
+        "view_all": "Voir Toutes les Salles",
+        "search_placeholder": "Rechercher des salles par nom ou description...",
+        "all_locations": "Tous les Lieux",
+        "filters": "Filtres",
+        "results_count": "{count} salles trouvées",
+        "categories": {
+            "all": "Tout",
+            "wedding_hall": "Salle des Fêtes",
+            "event_salon": "Salon Événementiel",
+            "conference_room": "Salle de Conférence",
+            "garden_outdoor": "Jardin / Extérieur",
+            "villa": "Villa",
+            "hotel_ballroom": "Salle de Bal d'Hôtel",
+            "restaurant": "Restaurant",
+            "rooftop": "Toit-terrasse"
+        }
     }
 }
