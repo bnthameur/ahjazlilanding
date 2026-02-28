@@ -8,12 +8,16 @@ export async function GET(
   { params }: { params: { locale: string } }
 ) {
   const requestUrl = new URL(request.url);
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
   const code = requestUrl.searchParams.get('code');
   const locale = params.locale ?? 'en';
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://ahjazlilanding-production.up.railway.app').replace(/\/$/, '');
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
+  const originFromForwarded = forwardedHost ? `${forwardedProto}://${forwardedHost}` : null;
+  const origin = configuredSiteUrl || originFromForwarded || requestUrl.origin;
 
   if (!code) {
-    return NextResponse.redirect(new URL(`/${locale}/login?error=missing_code`, siteUrl));
+    return NextResponse.redirect(new URL(`/${locale}/login?error=missing_code`, origin));
   }
 
   const cookieStore = cookies();
@@ -36,8 +40,8 @@ export async function GET(
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
-    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth_exchange_failed`, siteUrl));
+    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth_exchange_failed`, origin));
   }
 
-  return NextResponse.redirect(new URL(`/${locale}/salles`, siteUrl));
+  return NextResponse.redirect(new URL(`/${locale}/salles`, origin));
 }
