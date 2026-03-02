@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
-import VenueCard from '@/components/VenueCard';
+import { VenueCard } from '@/components/VenueCard';
 
 type FeaturedVenue = {
   id: string;
