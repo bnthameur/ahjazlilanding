@@ -4,6 +4,7 @@
     "how_it_works": "How It Works",
     "for_owners": "For Owners",
     "faq": "FAQ",
+    "language": "Language",
     "sign_in": "Sign In",
     "list_venue": "List Your Venue",
     "title": "Ahjazli Qaati"
@@ -76,14 +77,14 @@
     "subtitle": "Choose the plan that matches your season and visibility needs.",
     "offer_badge": "Limited Offers",
     "price": "From 5000 DA",
-    "price_subtitle": "Two seasonal offers",
+    "price_subtitle": "Two clear packs built for venue owners.",
     "plans": {
-      "standard_title": "2-Month Plan",
+      "standard_title": "Starter Visibility",
       "standard_price": "5000 DA",
-      "standard_subtitle": "Valid for 2 months",
-      "wedding_title": "Wedding Season",
+      "standard_subtitle": "2 months online visibility",
+      "wedding_title": "Premium Visibility",
       "wedding_price": "10000 DA",
-      "wedding_subtitle": "April, May, June, July, August"
+      "wedding_subtitle": "6 months online visibility"
     },
     "benefits": {
       "reach_title": "Reach More Customers",
@@ -104,7 +105,7 @@
       "inquiries": "Direct Inquiries"
     },
     "cta": "Start Listing",
-    "trust_message": "Two simple offers for venue owners throughout the year."
+    "trust_message": "Two strong options for venue owners who want better reach all year."
   },
   "FAQ": {
     "badge": "FAQ",
@@ -115,7 +116,7 @@
       "list_q": "How do I list my venue on the platform?",
       "list_a": "Simply create an account, fill in your venue details, upload photos and videos, and submit for review. Once approved, your venue will be visible to thousands of potential customers.",
       "free_q": "How much does it cost to list my venue?",
-      "free_a": "We offer two plans: 5000 DA for 2 months, or 10000 DA for the wedding season (April-August).",
+      "free_a": "We offer two plans: 5000 DA for 2 months, or 10000 DA for 6 months.",
       "approval_q": "How long does the approval process take?",
       "approval_a": "We review new venue listings within 24-48 hours. Make sure to provide accurate information and quality photos to speed up the approval process.",
       "contact_q": "How do customers contact me?",
@@ -178,6 +179,16 @@
       "terms_of_service": "Terms of Service"
     }
   },
+  "FeaturedVenues": {
+    "eyebrow": "Featured Collection",
+    "title": "Standout venues worth opening first",
+    "subtitle": "A curated mix of elegant halls, salons, and event spaces getting attention right now.",
+    "cta": "Browse all venues",
+    "spotlight": "Spotlight",
+    "starting_price": "Starting price",
+    "price_on_request": "Price on request",
+    "view_featured": "Open venue"
+  },
   "VenuesList": {
     "title": "Explore Venues",
     "subtitle": "Find the perfect place for your event",
@@ -195,6 +206,7 @@
   },
   "VenueDetails": {
     "back_to_list": "Back to Venues",
+    "gallery_label": "Gallery",
     "price_label": "Price",
     "capacity_label": "Capacity",
     "location_label": "Location",

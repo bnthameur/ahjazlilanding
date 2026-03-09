@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 // import Link from 'next/link'; // Replaced by custom Link
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -10,9 +11,11 @@ export default function Header() {
   const t = useTranslations('Header');
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const localizedPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,7 +26,7 @@ export default function Header() {
   }, []);
 
   const navigation = [
-    { name: t('browse_venues'), href: `/${locale}/salles` },
+    { name: t('browse_venues'), href: '/salles' },
     { name: t('how_it_works'), href: '/#how-it-works' }, // Internal anchor, handled by Link
     { name: t('for_owners'), href: '/#pricing' },
     { name: t('faq'), href: '/#faq' },
@@ -88,7 +91,7 @@ export default function Header() {
                   {['en', 'fr', 'ar'].map((l) => (
                     <Link
                       key={l}
-                      href={pathname}
+                      href={localizedPath}
                       locale={l}
                       className={`px-4 py-2 text-sm text-left hover:bg-slate-50 ${locale === l ? 'font-bold text-primary-600' : 'text-slate-600'}`}
                       onClick={() => setIsLangMenuOpen(false)}
@@ -163,12 +166,12 @@ export default function Header() {
               ))}
               {/* Mobile Language Switcher */}
               <div className="px-4 py-3 border-t border-slate-100 mt-2">
-                <div className="text-sm font-medium text-slate-500 mb-2">Language</div>
+                <div className="text-sm font-medium text-slate-500 mb-2">{t('language')}</div>
                 <div className="flex gap-3">
                   {['en', 'fr', 'ar'].map((l) => (
                     <Link
                       key={l}
-                      href={pathname}
+                      href={localizedPath}
                       locale={l}
                       className={`text-sm ${locale === l ? 'font-bold text-primary-600' : 'text-slate-600'}`}
                     >

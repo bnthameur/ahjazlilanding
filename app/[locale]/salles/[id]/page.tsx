@@ -64,7 +64,7 @@ export default async function VenueDetailsPage(props: {
                 <div className="absolute top-6 left-0 w-full z-10">
                     <div className="container mx-auto px-4">
                         <Link
-                            href={"/salles"}
+                            href="/salles"
                             className="inline-flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10 px-4 py-2 rounded-full transition-colors backdrop-blur-sm"
                         >
                             <ArrowLeft className="w-4 h-4" />
@@ -118,7 +118,7 @@ export default async function VenueDetailsPage(props: {
                         {/* Gallery */}
                         {gallery.length > 1 ? (
                             <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">Gallery</h3>
+                                <h3 className="text-lg font-bold text-slate-900 mb-4">{t("gallery_label")}</h3>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {gallery.slice(0, 6).map((img: string, i: number) => (
                                         <div key={i} className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100">
@@ -179,7 +179,7 @@ export default async function VenueDetailsPage(props: {
                                     rel="noreferrer"
                                     className="block text-sm text-slate-600 hover:text-primary-600"
                                 >
-                                    WhatsApp
+                                    {t("whatsapp")}
                                 </a>
                             ) : null}
                             {contactEmail ? (

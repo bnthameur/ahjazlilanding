@@ -7,6 +7,26 @@ import { Emoji } from 'react-apple-emojis';
 export default function Pricing() {
   const t = useTranslations('Pricing');
   const locale = useLocale();
+  const plans = [
+    {
+      title: t('plans.standard_title'),
+      price: t('plans.standard_price'),
+      subtitle: t('plans.standard_subtitle'),
+      accent: 'from-white to-rose-50',
+      border: 'border-white/70',
+      text: 'text-slate-900',
+      featured: false,
+    },
+    {
+      title: t('plans.wedding_title'),
+      price: t('plans.wedding_price'),
+      subtitle: t('plans.wedding_subtitle'),
+      accent: 'from-slate-950 via-slate-900 to-primary-900',
+      border: 'border-primary-300/30',
+      text: 'text-white',
+      featured: true,
+    },
+  ];
 
   const benefits = [
     {
@@ -32,9 +52,14 @@ export default function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="py-20 sm:py-28 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+    <section id="pricing" className="relative overflow-hidden py-20 sm:py-28 bg-[radial-gradient(circle_at_top,#fff1f2,transparent_38%),linear-gradient(180deg,#fff7ed_0%,#ffffff_42%,#fff7ed_100%)]">
+      <div className="absolute inset-0 opacity-70">
+        <div className="absolute left-[-8rem] top-10 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl" />
+        <div className="absolute right-[-6rem] top-24 h-72 w-72 rounded-full bg-rose-200/50 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary-100/60 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -42,7 +67,8 @@ export default function Pricing() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-16"
         >
-          <span className="inline-block px-4 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/80 text-primary-700 rounded-full text-sm font-medium mb-4 shadow-sm ring-1 ring-primary-100">
+            <Emoji name="sparkles" width={18} />
             {t('badge')}
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4">
@@ -54,60 +80,75 @@ export default function Pricing() {
           </p>
         </motion.div>
 
-        {/* Main Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="max-w-4xl mx-auto"
+          className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] items-start"
         >
-          <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-3xl p-8 sm:p-12 text-white text-center relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
+          <div className="rounded-[2rem] border border-white/70 bg-white/80 backdrop-blur-xl p-6 sm:p-8 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.35)]">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-400">{t('offer_badge')}</p>
+                <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{t('price')}</h3>
+                <p className="mt-2 text-sm sm:text-base text-slate-600">{t('price_subtitle')}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-950 px-4 py-3 text-white shadow-lg">
+                <div className="text-xs uppercase tracking-[0.22em] text-primary-200">Ahjazli Qaati</div>
+                <div className="mt-1 text-sm text-slate-200">{t('trust_message')}</div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              {plans.map((plan) => (
+                <div
+                  key={plan.title}
+                  className={`rounded-[1.75rem] border ${plan.border} bg-gradient-to-br ${plan.accent} p-6 shadow-sm`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <div className={`text-xs uppercase tracking-[0.22em] ${plan.featured ? 'text-primary-200' : 'text-slate-400'}`}>
+                        {plan.title}
+                      </div>
+                      <div className={`mt-3 text-4xl font-bold ${plan.text}`}>{plan.price}</div>
+                      <div className={`mt-2 text-sm ${plan.featured ? 'text-slate-200' : 'text-slate-600'}`}>{plan.subtitle}</div>
+                    </div>
+                    <div className={`rounded-2xl px-3 py-2 text-sm font-semibold ${plan.featured ? 'bg-white/10 text-white' : 'bg-white text-primary-700 shadow-sm'}`}>
+                      {plan.featured ? 'PRO' : 'START'}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {benefits.map((benefit) => (
+                <div key={benefit.title} className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">{benefit.icon}</span>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">{benefit.title}</h4>
+                      <p className="text-sm text-slate-600">{benefit.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] bg-slate-950 text-white p-6 sm:p-8 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.85)] overflow-hidden relative">
+            <div className="absolute inset-0 opacity-20">
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:3rem_3rem]" />
             </div>
 
             <div className="relative">
-            {/* Offer Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-sm font-medium mb-6">
-              <Emoji name="wrapped-gift" width={24} />
-              <span>{t('offer_badge')}</span>
-            </div>
-
-            {/* Plans */}
-            <div className="grid gap-4 sm:grid-cols-2 mb-8">
-              <div className="rounded-2xl border border-white/20 bg-white/10 p-5 text-left">
-                <div className="text-sm uppercase tracking-wide text-primary-100 mb-2">
-                  {t('plans.standard_title')}
-                </div>
-                <div className="text-3xl sm:text-4xl font-bold mb-1">{t('plans.standard_price')}</div>
-                <div className="text-sm text-primary-100">{t('plans.standard_subtitle')}</div>
-              </div>
-              <div className="rounded-2xl border border-white/20 bg-white/10 p-5 text-left">
-                <div className="text-sm uppercase tracking-wide text-primary-100 mb-2">
-                  {t('plans.wedding_title')}
-                </div>
-                <div className="text-3xl sm:text-4xl font-bold mb-1">{t('plans.wedding_price')}</div>
-                <div className="text-sm text-primary-100">{t('plans.wedding_subtitle')}</div>
-              </div>
-            </div>
-
-              {/* Benefits Grid */}
-              <div className="grid sm:grid-cols-2 gap-4 mb-8 text-left max-w-2xl mx-auto">
-                {benefits.map((benefit) => (
-                  <div key={benefit.title} className="flex items-start gap-3 bg-white/10 rounded-xl p-4">
-                    <span className="text-2xl">{benefit.icon}</span>
-                    <div>
-                      <h4 className="font-bold mb-1">{benefit.title}</h4>
-                      <p className="text-sm text-primary-100">{benefit.description}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium mb-6">
+                <Emoji name="wrapped-gift" width={22} />
+                {t('offer_badge')}
               </div>
 
-              {/* What's Included */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
+              <div className="space-y-3 mb-8">
                 {[
                   t('features_list.photos'),
                   t('features_list.video'),
@@ -116,39 +157,31 @@ export default function Pricing() {
                   t('features_list.analytics'),
                   t('features_list.inquiries'),
                 ].map((feature) => (
-                  <div key={feature} className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full text-sm">
-                    <svg className="w-4 h-4 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {feature}
+                  <div key={feature} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-100">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-500/20 text-primary-200">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </span>
+                    <span>{feature}</span>
                   </div>
                 ))}
               </div>
 
-              {/* CTA */}
               <a
                 href={`https://app.ahjazliqaati.com/${locale}/register`}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-slate-100 text-primary-600 font-bold rounded-xl text-lg transition-all duration-200"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-lg font-bold text-primary-700 transition-all duration-200 hover:bg-rose-50"
               >
                 {t('cta')}
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
+
+              <p className="mt-4 text-center text-sm text-slate-300">{t('trust_message')}</p>
             </div>
           </div>
         </motion.div>
-
-        {/* Trust Message */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-center text-slate-500 mt-8"
-        >
-          {t('trust_message')}
-        </motion.p>
       </div>
     </section>
   );

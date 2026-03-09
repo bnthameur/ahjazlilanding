@@ -4,6 +4,7 @@
     "how_it_works": "كيف يعمل",
     "for_owners": "لأصحاب القاعات",
     "faq": "الأسئلة الشائعة",
+    "language": "اللغة",
     "sign_in": "تسجيل الدخول",
     "list_venue": "أضف قاعتك",
     "title": "احجز لي قاعتي"
@@ -76,7 +77,7 @@
     "subtitle": "اختر العرض الذي يناسب موسمك واحتياجك للظهور.",
     "offer_badge": "عروض محدودة",
     "price": "ابتداءً من 5000 دج",
-    "price_subtitle": "عرضان موسميان",
+    "price_subtitle": "باقتان واضحتان مصممتان لأصحاب القاعات.",
     "benefits": {
       "reach_title": "وصول لأكبر عدد من الزبائن",
       "reach_desc": "اعرض قاعتك أمام آلاف الأشخاص الذين يبحثون عن أماكن للمناسبات.",
@@ -91,19 +92,19 @@
       "photos": "صور غير محدودة",
       "video": "رفع فيديو",
       "contact": "عرض معلومات الاتصال",
-      "social": "رواط التواصل الاجتماعي",
+      "social": "روابط التواصل الاجتماعي",
       "analytics": "لوحة تحكم وتحليلات",
       "inquiries": "طلبات مباشرة"
     },
     "cta": "ابدأ الإدراج",
-    "trust_message": "عرضان بسيطان لأصحاب القاعات طوال العام.",
+    "trust_message": "خياران قويان لأصحاب القاعات الذين يريدون ظهوراً أفضل طوال العام.",
     "plans": {
-      "standard_title": "عرض شهرين",
+      "standard_title": "ظهور أساسي",
       "standard_price": "5000 دج",
-      "standard_subtitle": "لمدة شهرين",
-      "wedding_title": "موسم الأعراس",
+      "standard_subtitle": "ظهور على المنصة لمدة شهرين",
+      "wedding_title": "ظهور بريميوم",
       "wedding_price": "10000 دج",
-      "wedding_subtitle": "أبريل، مايو، يونيو، يوليو، أغسطس"
+      "wedding_subtitle": "ظهور على المنصة لمدة 6 أشهر"
     }
   },
   "FAQ": {
@@ -113,9 +114,9 @@
     "subtitle": "كل ما تحتاج معرفته عن إضافة قاعتك.",
     "items": {
       "list_q": "كيف أضيف قاعتي في المنصة؟",
-      "list_a": "?????? ???? ??????? ???? ?????? ?????? ???? ????? ???????????? ?? ???? ????? ????????.",
+      "list_a": "أنشئ حساباً، أضف تفاصيل قاعتك، حمّل الصور والفيديوهات ثم أرسل الطلب للمراجعة. بعد الموافقة ستظهر قاعتك أمام آلاف العملاء المحتملين.",
       "free_q": "كم تكلفة إدراج قاعتي؟",
-      "free_a": "لدينا عرضان: 5000 دج لمدة شهرين، أو 10000 دج لموسم الأعراس (أبريل إلى أغسطس).",
+      "free_a": "لدينا عرضان: 5000 دج لمدة شهرين، أو 10000 دج لمدة 6 أشهر.",
       "approval_q": "كم تستغرق عملية الموافقة؟",
       "approval_a": "نراجع القاعات الجديدة خلال 24-48 ساعة. تأكد من تقديم معلومات دقيقة.",
       "contact_q": "كيف يتواصل الزبائن معي؟",
@@ -178,23 +179,34 @@
       "terms_of_service": "شروط الخدمة"
     }
   },
+  "FeaturedVenues": {
+    "eyebrow": "مجموعة مميزة",
+    "title": "قاعات لافتة تستحق أن تبدأ بها",
+    "subtitle": "مختارات أنيقة من القاعات والصالونات والمساحات المناسبة للمناسبات والتي تحظى بالاهتمام الآن.",
+    "cta": "تصفح كل القاعات",
+    "spotlight": "واجهة اليوم",
+    "starting_price": "السعر الابتدائي",
+    "price_on_request": "السعر عند الطلب",
+    "view_featured": "فتح القاعة"
+  },
   "VenuesList": {
     "title": "تصفح القاعات",
     "subtitle": "اعثر على المكان المثالي لمناسبتك",
     "empty": "لم يتم العثور على قاعات.",
     "view_details": "عرض التفاصيل",
-    "no_results": "No venues match your filters.",
-    "filters_title": "Filters",
-    "search_placeholder": "Search by name, city, or description",
-    "wilaya_label": "Wilaya",
-    "city_label": "City",
-    "select_wilaya": "Select Wilaya",
-    "select_city": "Select City",
-    "clear_filters": "Clear filters",
-    "results_count": "{count} venues"
+    "no_results": "لا توجد قاعات تطابق عوامل التصفية الحالية.",
+    "filters_title": "الفلاتر",
+    "search_placeholder": "ابحث بالاسم أو المدينة أو الوصف",
+    "wilaya_label": "الولاية",
+    "city_label": "المدينة",
+    "select_wilaya": "اختر الولاية",
+    "select_city": "اختر المدينة",
+    "clear_filters": "مسح الفلاتر",
+    "results_count": "{count} قاعة"
   },
   "VenueDetails": {
     "back_to_list": "العودة للقاعات",
+    "gallery_label": "المعرض",
     "price_label": "السعر",
     "capacity_label": "السعة",
     "location_label": "الموقع",
@@ -204,20 +216,20 @@
     "send_inquiry": "أرسل طلب",
     "inquiry_sent": "تم إرسال الطلب!",
     "inquiry_error": "فشل إرسال الطلب.",
+    "inquiry_rate_limit": "يرجى الانتظار {{seconds}} ثانية قبل إرسال طلب آخر.",
+    "book_now": "احجز الآن",
+    "contact_info": "معلومات التواصل",
+    "send_request": "أرسل طلباً",
+    "request_intro": "أرسل رسالة عبر المنصة واحصل على رد سريع.",
+    "call_now": "اتصل الآن",
+    "whatsapp": "واتساب",
+    "email_owner": "راسل المالك",
+    "close": "إغلاق",
     "name": "الاسم",
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
     "message": "الرسالة",
-    "send": "إرسال الرسالة",
-    "inquiry_rate_limit": "Please wait {{seconds}} seconds before sending another inquiry.",
-    "book_now": "Book Now",
-    "contact_info": "Contact information",
-    "send_request": "Send a request",
-    "request_intro": "Send a message through the platform and get a quick response.",
-    "call_now": "Call now",
-    "whatsapp": "WhatsApp",
-    "email_owner": "Email owner",
-    "close": "Close"
+    "send": "إرسال الرسالة"
   },
   "wilayas": {
     "Adrar": "أدرار",

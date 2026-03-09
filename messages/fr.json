@@ -4,6 +4,7 @@
     "how_it_works": "Comment ça marche",
     "for_owners": "Pour les Propriétaires",
     "faq": "FAQ",
+    "language": "Langue",
     "sign_in": "Se Connecter",
     "list_venue": "Ajouter votre Salle",
     "title": "Ahjazli Qaati"
@@ -76,14 +77,14 @@
     "subtitle": "Choisissez l’offre qui correspond à votre saison et à votre visibilité.",
     "offer_badge": "Offres limitées",
     "price": "À partir de 5000 DA",
-    "price_subtitle": "Deux offres saisonnières",
+    "price_subtitle": "Deux formules claires pensées pour les propriétaires de salles.",
     "plans": {
-      "standard_title": "Offre 2 mois",
+      "standard_title": "Visibilité Essentielle",
       "standard_price": "5000 DA",
-      "standard_subtitle": "Valable 2 mois",
-      "wedding_title": "Saison des mariages",
+      "standard_subtitle": "Visibilité en ligne pendant 2 mois",
+      "wedding_title": "Visibilité Premium",
       "wedding_price": "10000 DA",
-      "wedding_subtitle": "Avril, mai, juin, juillet, août"
+      "wedding_subtitle": "Visibilité en ligne pendant 6 mois"
     },
     "benefits": {
       "reach_title": "Atteignez Plus de Clients",
@@ -104,7 +105,7 @@
       "inquiries": "Demandes Directes"
     },
     "cta": "Commencer",
-    "trust_message": "Deux offres simples pour les propriétaires toute l’année."
+    "trust_message": "Deux formules solides pour gagner en visibilité toute l’année."
   },
   "FAQ": {
     "badge": "FAQ",
@@ -115,7 +116,7 @@
       "list_q": "Comment inscrire ma salle sur la plateforme ?",
       "list_a": "Créez simplement un compte, remplissez les détails de votre salle, téléchargez des photos/vidéos et soumettez pour examen.",
       "free_q": "Combien coûte la mise en ligne de ma salle ?",
-      "free_a": "Nous proposons deux offres : 5000 DA pour 2 mois, ou 10000 DA pour la saison des mariages (avril à août).",
+      "free_a": "Nous proposons deux offres : 5000 DA pour 2 mois, ou 10000 DA pour 6 mois.",
       "approval_q": "Combien de temps prend le processus d'approbation ?",
       "approval_a": "Nous examinons les nouvelles annonces sous 24-48 heures. Assurez-vous de fournir des informations précises.",
       "contact_q": "Comment les clients me contactent-ils ?",
@@ -178,6 +179,16 @@
       "terms_of_service": "Conditions d'Utilisation"
     }
   },
+  "FeaturedVenues": {
+    "eyebrow": "Collection en vedette",
+    "title": "Des salles qui méritent d’être ouvertes en premier",
+    "subtitle": "Une sélection élégante de salles, salons et espaces événementiels qui attirent l’attention en ce moment.",
+    "cta": "Explorer toutes les salles",
+    "spotlight": "En lumière",
+    "starting_price": "Prix de départ",
+    "price_on_request": "Prix sur demande",
+    "view_featured": "Voir la salle"
+  },
   "VenuesList": {
     "title": "Explorer les Salles",
     "subtitle": "Trouvez l'endroit idéal pour votre événement",
@@ -195,6 +206,7 @@
   },
   "VenueDetails": {
     "back_to_list": "Retour aux Salles",
+    "gallery_label": "Galerie",
     "price_label": "Prix",
     "capacity_label": "Capacité",
     "location_label": "Lieu",
