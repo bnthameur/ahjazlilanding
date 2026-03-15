@@ -1,15 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
-import { MapPin, Users, Coins, ArrowLeft, Sparkles, ImageIcon } from "lucide-react";
+import {
+    MapPin,
+    Users,
+    Coins,
+    ArrowLeft,
+    Sparkles,
+    Phone,
+    MessageCircle,
+    Mail,
+    Star,
+    Tag,
+} from "lucide-react";
 import VenueBookingCard from "@/components/VenueBookingCard";
 import ImageGallery, { MediaItem } from "@/components/ImageGallery";
-import MediaStrip from "@/components/MediaStrip";
 import MobileStickyBar from "@/components/MobileStickyBar";
+import VenueHeroCarousel from "@/components/VenueHeroCarousel";
+import ShareButton from "@/components/ShareButton";
 import { getWilayaLabel } from "@/lib/wilayas";
+import Header from "@/components/Header";
 
 interface VenueMedia {
     id: string;
@@ -22,29 +34,39 @@ interface VenueMedia {
     is_cover?: boolean | null;
 }
 
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+    "wedding-hall": { ar: "قاعة أفراح", fr: "Salle des Fêtes", en: "Wedding Hall" },
+    "event-salon": { ar: "صالون مناسبات", fr: "Salon Événementiel", en: "Event Salon" },
+    "conference-room": { ar: "قاعة مؤتمرات", fr: "Salle de Conférence", en: "Conference Room" },
+    "garden-outdoor": { ar: "حديقة / فضاء مفتوح", fr: "Jardin / Extérieur", en: "Garden / Outdoor" },
+};
+
+function getCategoryLabel(category: string | null | undefined, locale: string): string | null {
+    if (!category) return null;
+    return CATEGORY_LABELS[category]?.[locale] ?? CATEGORY_LABELS[category]?.["en"] ?? null;
+}
+
 export default async function VenueDetailsPage(props: {
     params: Promise<{ id: string; locale: string }>;
 }) {
     const params = await props.params;
-    const { id } = params;
+    const { id, locale } = params;
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
     const t = await getTranslations("VenueDetails");
     const tCommon = await getTranslations();
 
-    const slugOrId = id;
-
-    // Fetch venue with profile and all venue_media
+    // Fetch venue - try by slug first, then ID
     const { data: slugVenue } = await supabase
         .from("venues")
         .select("*, profiles(full_name, phone, email), venue_media(*)")
-        .eq("slug", slugOrId)
+        .eq("slug", id)
         .maybeSingle();
 
     const venue = slugVenue ?? (await supabase
         .from("venues")
         .select("*, profiles(full_name, phone, email), venue_media(*)")
-        .eq("id", slugOrId)
+        .eq("id", id)
         .maybeSingle()).data;
 
     if (!venue) {
@@ -56,8 +78,9 @@ export default async function VenueDetailsPage(props: {
     const contactPhone = venue.phone || venue.profiles?.phone || null;
     const contactEmail = venue.contact_email || venue.profiles?.email || null;
     const contactWhatsapp = venue.whatsapp || null;
+    const categoryLabel = getCategoryLabel(venue.category, locale);
 
-    // Build rich media array: prefer venue_media table, fallback to images array
+    // Build rich media array
     const venueMediaRows: VenueMedia[] = (venue.venue_media as VenueMedia[]) || [];
     const hasVenueMedia = venueMediaRows.length > 0;
 
@@ -75,97 +98,138 @@ export default async function VenueDetailsPage(props: {
             type: "image" as const,
         }));
 
-    // Hero image: first cover from venue_media, or first image otherwise
-    const coverMedia = hasVenueMedia
-        ? venueMediaRows.find((m) => m.is_cover) || venueMediaRows[0]
+    // Hero carousel images (images only, up to 6)
+    const heroImages = allMedia
+        .filter((m) => m.type === "image")
+        .slice(0, 6)
+        .map((m) => ({ url: m.url, caption: m.caption ?? null }));
+
+    // If no media images, use venue.images array
+    if (heroImages.length === 0 && venue.images?.length) {
+        heroImages.push(...(venue.images as string[]).slice(0, 6).map((url: string) => ({ url, caption: null })));
+    }
+
+    const formattedPrice = venue.price
+        ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(venue.price))
         : null;
-    const heroImageUrl = coverMedia?.url || (venue.images?.[0] ?? null);
-
-    // Strip items for horizontal scroll (all images/thumbnails)
-    const stripItems = allMedia;
-
-    const totalMediaCount = allMedia.length;
 
     return (
-        // Add pb-24 on mobile to ensure content is not hidden behind the sticky booking bar
         <div className="bg-slate-50 min-h-screen pb-24 lg:pb-0">
-            {/* ===== Hero ===== */}
-            <div className="relative h-[42vh] sm:h-[50vh] md:h-[55vh] w-full overflow-hidden bg-slate-900">
-                {heroImageUrl ? (
-                    <Image
-                        src={heroImageUrl}
-                        alt={venue.title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <ImageIcon className="w-16 h-16 text-white/20" />
-                    </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-slate-900/20" />
+            <Header />
 
-                {/* Back link */}
-                <div className="absolute top-4 sm:top-6 start-0 w-full z-10">
-                    <div className="container mx-auto px-4">
+            {/* ===== Hero Carousel ===== */}
+            <div className="relative pt-16 sm:pt-20">
+                <VenueHeroCarousel images={heroImages} title={venue.title} />
+
+                {/* Floating top bar: back + share */}
+                <div className="absolute top-16 sm:top-20 start-0 end-0 z-10 pointer-events-none">
+                    <div className="container mx-auto px-4 pt-3 flex items-center justify-between">
                         <Link
                             href="/salles"
-                            className="inline-flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10 px-3 py-2 rounded-full transition-colors backdrop-blur-sm text-sm"
+                            className="pointer-events-auto inline-flex items-center gap-2 text-white/90 hover:text-white bg-black/30 hover:bg-black/50 px-3 py-2 rounded-full transition-colors backdrop-blur-sm text-sm font-medium"
                         >
                             <ArrowLeft className="w-4 h-4" />
                             {t("back_to_list")}
                         </Link>
-                    </div>
-                </div>
-
-                {/* Venue name + meta */}
-                <div className="absolute bottom-0 start-0 w-full pb-5 sm:pb-10 text-white">
-                    <div className="container mx-auto px-4">
-                        <div className="max-w-3xl">
-                            <div className="flex items-center gap-2 text-primary-200 font-medium mb-2 text-sm">
-                                <MapPin className="w-4 h-4" />
-                                {locationLabel || venue.location}
-                            </div>
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-                                {venue.title}
-                            </h1>
-                            <div className="mt-3 flex flex-wrap gap-2 text-xs sm:text-sm">
-                                {venue.capacity && (
-                                    <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur">
-                                        <Users className="w-3.5 h-3.5 text-primary-200" />
-                                        {venue.capacity} {t("capacity_label")}
-                                    </span>
-                                )}
-                                {venue.price && (
-                                    <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur">
-                                        <Coins className="w-3.5 h-3.5 text-primary-200" />
-                                        {venue.price} DZD
-                                    </span>
-                                )}
-                                {totalMediaCount > 0 && (
-                                    <span className="flex items-center gap-1.5 bg-white/10 px-2.5 py-1 rounded-full backdrop-blur">
-                                        <ImageIcon className="w-3.5 h-3.5 text-primary-200" />
-                                        {totalMediaCount} {t("gallery_label")}
-                                    </span>
-                                )}
-                            </div>
+                        <div className="pointer-events-auto">
+                            <ShareButton title={venue.title} />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ===== Horizontal Media Strip ===== */}
-            {stripItems.length > 0 && (
-                <MediaStrip items={stripItems} title={venue.title} />
-            )}
+            {/* ===== Venue Header (below hero) ===== */}
+            <div className="bg-white border-b border-slate-200 shadow-sm">
+                <div className="container mx-auto px-4 py-5 sm:py-6">
+                    <div className="grid lg:grid-cols-[2fr_1fr] gap-4 lg:gap-8 items-start">
+                        <div>
+                            {/* Location line */}
+                            <div className="flex items-center gap-1.5 text-sm text-primary-600 font-medium mb-2">
+                                <MapPin className="w-4 h-4 shrink-0" />
+                                {locationLabel || venue.location}
+                            </div>
 
-            {/* ===== Main content ===== */}
-            <div className="container mx-auto px-4 mt-4 sm:mt-6 relative z-10">
+                            {/* Title */}
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
+                                {venue.title}
+                            </h1>
+
+                            {/* Rating placeholder + category */}
+                            <div className="mt-2 flex flex-wrap items-center gap-3">
+                                <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star
+                                            key={s}
+                                            className={`w-4 h-4 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`}
+                                        />
+                                    ))}
+                                    <span className="text-sm text-slate-500 ms-1">4.0</span>
+                                </div>
+                                {categoryLabel && (
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
+                                        <Tag className="w-3 h-3" />
+                                        {categoryLabel}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Quick stats */}
+                            <div className="mt-4 flex flex-wrap gap-3">
+                                {venue.capacity && (
+                                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                        <Users className="w-4 h-4 text-primary-500" />
+                                        <div>
+                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider leading-none">{t("capacity_label")}</div>
+                                            <div className="text-sm font-bold text-slate-900 leading-tight">{venue.capacity}</div>
+                                        </div>
+                                    </div>
+                                )}
+                                {formattedPrice && (
+                                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                                        <Coins className="w-4 h-4 text-primary-500" />
+                                        <div>
+                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider leading-none">{t("price_label")}</div>
+                                            <div className="text-sm font-bold text-slate-900 leading-tight">{formattedPrice} DZD</div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* CTA buttons (mobile only - desktop is in sidebar) */}
+                            <div className="lg:hidden mt-5 flex gap-3">
+                                <a
+                                    href={contactPhone ? `tel:${contactPhone}` : "#"}
+                                    className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-primary-600 text-primary-600 font-semibold py-3 text-sm transition hover:bg-primary-50 ${!contactPhone ? "opacity-40 pointer-events-none" : ""}`}
+                                >
+                                    <Phone className="w-4 h-4" />
+                                    {t("call_now")}
+                                </a>
+                                {contactWhatsapp && (
+                                    <a
+                                        href={`https://wa.me/${contactWhatsapp}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 text-sm transition"
+                                    >
+                                        <MessageCircle className="w-4 h-4" />
+                                        {t("whatsapp")}
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Desktop: sticky sidebar anchor - rendered later in the grid below */}
+                        <div className="hidden lg:block" />
+                    </div>
+                </div>
+            </div>
+
+            {/* ===== Main content + sidebar ===== */}
+            <div className="container mx-auto px-4 mt-5 sm:mt-6 relative z-10">
                 <div className="grid lg:grid-cols-[2fr_1fr] gap-6 sm:gap-8">
                     {/* Left column */}
                     <div className="space-y-5 sm:space-y-6">
-                        {/* Description */}
+                        {/* About */}
                         <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
                             <div className="flex items-center gap-2 mb-3">
                                 <Sparkles className="w-5 h-5 text-primary-600" />
@@ -174,7 +238,7 @@ export default async function VenueDetailsPage(props: {
                             <p className="text-slate-600 leading-relaxed text-sm sm:text-base">{venue.description}</p>
                         </div>
 
-                        {/* Full media gallery */}
+                        {/* Photo & Video Gallery */}
                         {allMedia.length > 0 && (
                             <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
@@ -188,39 +252,89 @@ export default async function VenueDetailsPage(props: {
                         {/* Amenities */}
                         {venue.amenities && venue.amenities.length > 0 && (
                             <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
-                                <h3 className="text-lg font-bold text-slate-900 mb-3">{t("features_label")}</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {venue.amenities.map((amenity: string) => (
-                                        <span
+                                <h3 className="text-lg font-bold text-slate-900 mb-4">{t("features_label")}</h3>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {(venue.amenities as string[]).map((amenity: string) => (
+                                        <div
                                             key={amenity}
-                                            className="px-3 py-1.5 rounded-full text-sm bg-slate-100 text-slate-700"
+                                            className="flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5 text-sm text-slate-700"
                                         >
+                                            <span className="h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
                                             {amenity}
-                                        </span>
+                                        </div>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        {/* Contact info block - desktop sidebar copy is below; this shows in main col on tablet */}
-                        <div className="lg:hidden bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
-                            <h4 className="text-sm font-semibold text-slate-900 mb-1">{t("contact_info")}</h4>
-                            {contactPhone && (
-                                <a href={`tel:${contactPhone}`} className="block text-sm text-slate-600 hover:text-primary-600">
-                                    {contactPhone}
-                                </a>
-                            )}
-                            {contactWhatsapp && (
-                                <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer" className="block text-sm text-slate-600 hover:text-primary-600">
-                                    {t("whatsapp")}
-                                </a>
-                            )}
-                            {contactEmail && (
-                                <a href={`mailto:${contactEmail}`} className="block text-sm text-slate-600 hover:text-primary-600">
-                                    {contactEmail}
-                                </a>
-                            )}
+                        {/* Location card */}
+                        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
+                            <h3 className="text-lg font-bold text-slate-900 mb-3">{t("location_label")}</h3>
+                            <div className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                                <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-5 h-5 text-primary-600" />
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-slate-900 text-sm">{locationLabel || venue.location}</div>
+                                    {venue.wilaya && (
+                                        <div className="text-xs text-slate-500 mt-0.5">{wilayaLabel || venue.wilaya}</div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Contact info - non-desktop */}
+                        {(contactPhone || contactWhatsapp || contactEmail) && (
+                            <div className="lg:hidden bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                                <h4 className="text-base font-bold text-slate-900 mb-4">{t("contact_info")}</h4>
+                                <div className="space-y-3">
+                                    {contactPhone && (
+                                        <a
+                                            href={`tel:${contactPhone}`}
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-primary-300 hover:shadow-sm transition"
+                                        >
+                                            <div className="h-10 w-10 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
+                                                <Phone className="w-5 h-5 text-primary-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-slate-500">{t("call_now")}</div>
+                                                <div className="font-semibold text-slate-900 text-sm">{contactPhone}</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                    {contactWhatsapp && (
+                                        <a
+                                            href={`https://wa.me/${contactWhatsapp}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-emerald-300 hover:shadow-sm transition"
+                                        >
+                                            <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                                                <MessageCircle className="w-5 h-5 text-emerald-600" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-slate-500">{t("whatsapp")}</div>
+                                                <div className="font-semibold text-slate-900 text-sm">{contactWhatsapp}</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                    {contactEmail && (
+                                        <a
+                                            href={`mailto:${contactEmail}`}
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-slate-300 hover:shadow-sm transition"
+                                        >
+                                            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                                                <Mail className="w-5 h-5 text-slate-700" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-slate-500">{t("email_owner")}</div>
+                                                <div className="font-semibold text-slate-900 text-sm truncate max-w-[200px]">{contactEmail}</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right sidebar - desktop only */}
@@ -238,24 +352,53 @@ export default async function VenueDetailsPage(props: {
                                 whatsapp={contactWhatsapp}
                                 contactEmail={contactEmail}
                             />
-                            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
-                                <h4 className="text-sm font-semibold text-slate-900">{t("contact_info")}</h4>
-                                {contactPhone && (
-                                    <a href={`tel:${contactPhone}`} className="block text-sm text-slate-600 hover:text-primary-600">
-                                        {contactPhone}
-                                    </a>
-                                )}
-                                {contactWhatsapp && (
-                                    <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer" className="block text-sm text-slate-600 hover:text-primary-600">
-                                        {t("whatsapp")}
-                                    </a>
-                                )}
-                                {contactEmail && (
-                                    <a href={`mailto:${contactEmail}`} className="block text-sm text-slate-600 hover:text-primary-600">
-                                        {contactEmail}
-                                    </a>
-                                )}
-                            </div>
+
+                            {/* Contact card */}
+                            {(contactPhone || contactWhatsapp || contactEmail) && (
+                                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                                    <h4 className="text-sm font-bold text-slate-900 mb-4">{t("contact_info")}</h4>
+                                    <div className="space-y-2.5">
+                                        {contactPhone && (
+                                            <a
+                                                href={`tel:${contactPhone}`}
+                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-primary-200 hover:bg-primary-50 transition"
+                                            >
+                                                <Phone className="w-4 h-4 text-primary-600 shrink-0" />
+                                                <div>
+                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("call_now")}</div>
+                                                    <div className="text-sm font-semibold text-slate-900">{contactPhone}</div>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contactWhatsapp && (
+                                            <a
+                                                href={`https://wa.me/${contactWhatsapp}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-emerald-200 hover:bg-emerald-50 transition"
+                                            >
+                                                <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                <div>
+                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("whatsapp")}</div>
+                                                    <div className="text-sm font-semibold text-slate-900">{contactWhatsapp}</div>
+                                                </div>
+                                            </a>
+                                        )}
+                                        {contactEmail && (
+                                            <a
+                                                href={`mailto:${contactEmail}`}
+                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-slate-200 hover:bg-slate-50 transition"
+                                            >
+                                                <Mail className="w-4 h-4 text-slate-600 shrink-0" />
+                                                <div>
+                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("email_owner")}</div>
+                                                    <div className="text-sm font-semibold text-slate-900 truncate max-w-[180px]">{contactEmail}</div>
+                                                </div>
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

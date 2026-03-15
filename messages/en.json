@@ -231,6 +231,29 @@
     "message": "Message",
     "send": "Send Message"
   },
+  "Legal": {
+    "privacy_title": "Privacy Policy",
+    "terms_title": "Terms of Service",
+    "back_home": "Back to Home",
+    "last_updated": "Last updated"
+  },
+  "VenueOnboarding": {
+    "step1_title": "What type of venue are you looking for?",
+    "step1_subtitle": "Choose a category to get started",
+    "step2_title": "Where are you looking?",
+    "step2_subtitle": "Select a wilaya to narrow your search",
+    "all_types": "All Types",
+    "all_locations": "All Locations",
+    "popular_wilayas": "Popular locations",
+    "search_wilaya": "Search wilaya...",
+    "category_wedding": "Wedding Hall",
+    "category_salon": "Event Salon",
+    "category_conference": "Conference Room",
+    "category_outdoor": "Outdoor / Garden",
+    "skip": "Skip",
+    "continue": "Continue",
+    "view_results": "View Results"
+  },
   "wilayas": {
     "Adrar": "Adrar",
     "Chlef": "Chlef",

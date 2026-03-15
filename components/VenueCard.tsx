@@ -46,17 +46,15 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
 
     const venueSlug = venue.slug || venue.id;
 
-    // Horizontal layout (mobile list view)
+    // Horizontal layout (mobile list view) - entire card is a link
     if (horizontal) {
         return (
-            <div className="group flex overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300">
+            <Link
+                href={`/salles/${venueSlug}`}
+                className="group flex overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300"
+            >
                 {/* Image - fixed width on left */}
-                <Link
-                    href={`/salles/${venueSlug}`}
-                    className="relative shrink-0 w-28 sm:w-36 bg-slate-100 overflow-hidden"
-                    aria-label={venue.title}
-                    tabIndex={-1}
-                >
+                <div className="relative shrink-0 w-28 sm:w-36 bg-slate-100 overflow-hidden">
                     {venue.images && venue.images.length > 0 ? (
                         <Image
                             src={venue.images[0]}
@@ -66,16 +64,16 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                             sizes="144px"
                         />
                     ) : (
-                        <div className="flex h-full items-center justify-center text-slate-300">
+                        <div className="flex h-full items-center justify-center text-slate-300 min-h-[100px]">
                             <span className="text-3xl">🏛️</span>
                         </div>
                     )}
                     {formattedPrice && (
-                        <div className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
+                        <div className="absolute bottom-2 start-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
                             {formattedPrice} DZD
                         </div>
                     )}
-                </Link>
+                </div>
 
                 {/* Content */}
                 <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-4">
@@ -98,21 +96,21 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                                 <span>{formattedCapacity}</span>
                             </div>
                         )}
-                        <Link
-                            href={`/salles/${venueSlug}`}
-                            className="ms-auto text-xs font-semibold text-primary-600 hover:text-primary-700 transition"
-                        >
+                        <span className="ms-auto text-xs font-semibold text-primary-600 group-hover:text-primary-700 transition">
                             {t('view_details')} →
-                        </Link>
+                        </span>
                     </div>
                 </div>
-            </div>
+            </Link>
         );
     }
 
-    // Default vertical layout (existing behaviour)
+    // Default vertical layout - entire card is a link
     return (
-        <div className={`group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-24px_rgba(15,23,42,0.35)] ${compact ? 'min-h-[22rem]' : ''}`}>
+        <Link
+            href={`/salles/${venueSlug}`}
+            className={`group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-24px_rgba(15,23,42,0.35)] ${compact ? 'min-h-[22rem]' : ''}`}
+        >
             <div className={`relative w-full overflow-hidden bg-slate-100 ${compact ? 'h-44' : 'h-60'}`}>
                 {venue.images && venue.images.length > 0 ? (
                     <Image
@@ -127,11 +125,11 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                     </div>
                 )}
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/70 to-transparent" />
-                <div className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
+                <div className="absolute start-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
                     {formattedPrice ? `${formattedPrice} DZD` : priceLabel}
                 </div>
                 {venue.images && venue.images.length > 1 ? (
-                    <div className="absolute bottom-3 right-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-xs text-white backdrop-blur">
+                    <div className="absolute bottom-3 end-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-xs text-white backdrop-blur">
                         +{venue.images.length - 1}
                     </div>
                 ) : null}
@@ -157,14 +155,11 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                         <Users className="h-4 w-4 text-primary-500" />
                         <span>{formattedCapacity || '-'}</span>
                     </div>
-                    <Link
-                        href={`/salles/${venueSlug}`}
-                        className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 transition hover:text-primary-700"
-                    >
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 group-hover:text-primary-700 transition">
                         {t('view_details')} <span aria-hidden="true">→</span>
-                    </Link>
+                    </span>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }

@@ -231,6 +231,29 @@
     "message": "Message",
     "send": "Envoyer le Message"
   },
+  "Legal": {
+    "privacy_title": "Politique de Confidentialité",
+    "terms_title": "Conditions d'Utilisation",
+    "back_home": "Retour à l'accueil",
+    "last_updated": "Dernière mise à jour"
+  },
+  "VenueOnboarding": {
+    "step1_title": "Quel type de salle recherchez-vous ?",
+    "step1_subtitle": "Choisissez une catégorie pour commencer",
+    "step2_title": "Où cherchez-vous ?",
+    "step2_subtitle": "Sélectionnez une wilaya pour affiner votre recherche",
+    "all_types": "Tous les types",
+    "all_locations": "Tous les lieux",
+    "popular_wilayas": "Lieux populaires",
+    "search_wilaya": "Rechercher une wilaya...",
+    "category_wedding": "Salle des Fêtes",
+    "category_salon": "Salon Événementiel",
+    "category_conference": "Salle de Conférence",
+    "category_outdoor": "Jardin / Extérieur",
+    "skip": "Passer",
+    "continue": "Continuer",
+    "view_results": "Voir les résultats"
+  },
   "wilayas": {
     "Adrar": "Adrar",
     "Chlef": "Chlef",

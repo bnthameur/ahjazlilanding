@@ -231,6 +231,29 @@
     "message": "الرسالة",
     "send": "إرسال الرسالة"
   },
+  "Legal": {
+    "privacy_title": "سياسة الخصوصية",
+    "terms_title": "شروط الخدمة",
+    "back_home": "العودة إلى الرئيسية",
+    "last_updated": "آخر تحديث"
+  },
+  "VenueOnboarding": {
+    "step1_title": "ما نوع القاعة التي تبحث عنها؟",
+    "step1_subtitle": "اختر فئة للبدء",
+    "step2_title": "أين تبحث؟",
+    "step2_subtitle": "اختر الولاية لتضييق نطاق البحث",
+    "all_types": "كل الأنواع",
+    "all_locations": "كل المواقع",
+    "popular_wilayas": "المواقع الشائعة",
+    "search_wilaya": "ابحث عن ولاية...",
+    "category_wedding": "قاعة أفراح",
+    "category_salon": "صالون مناسبات",
+    "category_conference": "قاعة مؤتمرات",
+    "category_outdoor": "حديقة / فضاء مفتوح",
+    "skip": "تخطي",
+    "continue": "متابعة",
+    "view_results": "عرض النتائج"
+  },
   "wilayas": {
     "Adrar": "أدرار",
     "Chlef": "الشلف",

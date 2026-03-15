@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import VenuesMarketplace from "@/components/VenuesMarketplace";
+import Header from "@/components/Header";
 
 export default async function VenuesPage(props: {
     params: Promise<{ locale: string }>;
@@ -11,7 +12,7 @@ export default async function VenuesPage(props: {
 
     const { data: venues, error } = await supabase
         .from("venues")
-        .select("*")
+        .select("id, slug, title, description, location, category, wilaya, city, price, capacity, images")
         .eq("status", "published")
         .order("created_at", { ascending: false });
 
@@ -19,5 +20,12 @@ export default async function VenuesPage(props: {
         console.error("Error fetching venues:", error);
     }
 
-    return <VenuesMarketplace venues={venues || []} />;
+    return (
+        <>
+            <Header />
+            <div className="pt-16 sm:pt-20">
+                <VenuesMarketplace venues={venues || []} />
+            </div>
+        </>
+    );
 }

@@ -2,8 +2,8 @@ import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
-import { MapPin, Users } from 'lucide-react';
-import { VenueCard } from '@/components/VenueCard';
+import { MapPin, Users, ArrowUpRight } from 'lucide-react';
+import Image from 'next/image';
 
 type FeaturedVenue = {
   id: string;
@@ -18,12 +18,103 @@ type FeaturedVenue = {
   images?: string[] | null;
 };
 
+function VenueImageCard({
+  venue,
+  locale,
+  size = 'normal',
+  t,
+}: {
+  venue: FeaturedVenue;
+  locale: string;
+  size?: 'large' | 'normal';
+  t: Awaited<ReturnType<typeof getTranslations>>;
+}) {
+  const venueSlug = venue.slug || venue.id;
+  const imageUrl = venue.images?.[0] ?? null;
+  const locationLabel = [venue.city, venue.wilaya || venue.location].filter(Boolean).join(', ');
+  const formattedPrice = venue.price
+    ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(venue.price))
+    : null;
+  const formattedCapacity = venue.capacity
+    ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(venue.capacity))
+    : null;
+
+  return (
+    <Link
+      href={`/salles/${venueSlug}`}
+      className={`group relative flex overflow-hidden rounded-2xl bg-slate-900 transition-all duration-300 hover:shadow-2xl hover:-translate-y-0.5 ${
+        size === 'large' ? 'min-h-[320px] sm:min-h-[380px]' : 'min-h-[200px] sm:min-h-[220px]'
+      }`}
+    >
+      {/* Background image */}
+      {imageUrl ? (
+        <Image
+          src={imageUrl}
+          alt={venue.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes={size === 'large' ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 30vw'}
+          priority={size === 'large'}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
+      )}
+
+      {/* Gradient overlay - heavier at bottom for text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent" />
+
+      {/* Top: price badge */}
+      {formattedPrice && (
+        <div className="absolute top-3 start-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-slate-900 shadow-sm backdrop-blur-sm">
+          {formattedPrice} DZD
+        </div>
+      )}
+
+      {/* Top right: arrow indicator */}
+      <div className="absolute top-3 end-3 h-8 w-8 rounded-full bg-white/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+        <ArrowUpRight className="h-4 w-4 text-white" />
+      </div>
+
+      {/* Bottom: venue info */}
+      <div className="relative mt-auto w-full p-4 sm:p-5">
+        {locationLabel && (
+          <div className="flex items-center gap-1.5 text-xs text-primary-200 mb-1.5">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="line-clamp-1">{locationLabel}</span>
+          </div>
+        )}
+        <h3 className={`font-bold text-white line-clamp-2 leading-snug group-hover:text-primary-100 transition-colors ${
+          size === 'large' ? 'text-xl sm:text-2xl' : 'text-base sm:text-lg'
+        }`}>
+          {venue.title}
+        </h3>
+        {size === 'large' && (
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 line-clamp-2 leading-relaxed">
+            {venue.description}
+          </p>
+        )}
+        <div className="mt-3 flex items-center justify-between">
+          {formattedCapacity && (
+            <div className="flex items-center gap-1.5 text-xs text-slate-300">
+              <Users className="h-3.5 w-3.5 text-primary-300" />
+              <span>{formattedCapacity}</span>
+            </div>
+          )}
+          <span className="ms-auto inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm group-hover:bg-white/20 transition-colors">
+            {t('view_featured')}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default async function FeaturedVenues({ locale }: { locale: string }) {
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const t = await getTranslations({ locale, namespace: 'FeaturedVenues' });
 
-  // First try to get admin-selected featured venues
+  // First try admin-selected featured venues
   const { data: featuredVenues } = await supabase
     .from('venues')
     .select('id, slug, title, description, location, wilaya, city, price, capacity, images')
@@ -32,7 +123,7 @@ export default async function FeaturedVenues({ locale }: { locale: string }) {
     .order('created_at', { ascending: false })
     .limit(3);
 
-  // Fallback to latest published venues if no featured ones
+  // Fallback to latest published venues
   const venues = (featuredVenues && featuredVenues.length > 0)
     ? featuredVenues
     : (await supabase
@@ -48,23 +139,23 @@ export default async function FeaturedVenues({ locale }: { locale: string }) {
   }
 
   const [primaryVenue, ...secondaryVenues] = venues as FeaturedVenue[];
-  const formattedPrice = primaryVenue.price
-    ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(primaryVenue.price))
-    : null;
-  const formattedCapacity = primaryVenue.capacity
-    ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(primaryVenue.capacity))
-    : null;
-  const locationLabel = [primaryVenue.city, primaryVenue.wilaya || primaryVenue.location].filter(Boolean).join(', ');
 
   return (
     <section className="relative z-10 -mt-8 sm:-mt-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-2xl sm:rounded-[2rem] border border-slate-200/70 bg-white/90 p-3 sm:p-5 md:p-7 shadow-[0_35px_90px_-60px_rgba(15,23,42,0.65)] backdrop-blur-xl">
-          <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
+          {/* Section header */}
+          <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-4 mb-4 sm:mb-5">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.24em] text-primary-600 font-semibold">{t('eyebrow')}</p>
-              <h2 className="mt-1 sm:mt-2 text-lg sm:text-2xl md:text-3xl font-bold text-slate-900">{t('title')}</h2>
-              <p className="mt-0.5 sm:mt-2 text-xs sm:text-sm md:text-base text-slate-600 hidden sm:block">{t('subtitle')}</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-primary-600 font-semibold">
+                {t('eyebrow')}
+              </p>
+              <h2 className="mt-1 sm:mt-2 text-lg sm:text-2xl md:text-3xl font-bold text-slate-900">
+                {t('title')}
+              </h2>
+              <p className="mt-0.5 sm:mt-1.5 text-xs sm:text-sm text-slate-600 hidden sm:block">
+                {t('subtitle')}
+              </p>
             </div>
             <Link
               href="/salles"
@@ -75,51 +166,26 @@ export default async function FeaturedVenues({ locale }: { locale: string }) {
             </Link>
           </div>
 
-          <div className="grid gap-3 sm:gap-5 lg:grid-cols-[1.3fr_0.7fr]">
-            {/* Primary venue spotlight */}
-            <Link
-              href={`/salles/${primaryVenue.slug || primaryVenue.id}`}
-              className="group relative overflow-hidden rounded-xl sm:rounded-[1.75rem] bg-slate-950 p-4 sm:p-6 md:p-8 text-white"
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#fb718522,transparent_35%),linear-gradient(135deg,#0f172a_0%,#111827_45%,#172554_100%)]" />
-              <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-primary-100">
-                  {t('spotlight')}
-                </div>
-
-                <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-200">
-                  <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/10 px-2.5 sm:px-3 py-1 sm:py-1.5">
-                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-200" />
-                    {locationLabel || primaryVenue.location}
-                  </span>
-                  {formattedCapacity && (
-                    <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/10 px-2.5 sm:px-3 py-1 sm:py-1.5">
-                      <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary-200" />
-                      {formattedCapacity}
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="mt-4 sm:mt-5 text-xl sm:text-2xl md:text-3xl font-bold leading-tight group-hover:text-primary-100 transition-colors">{primaryVenue.title}</h3>
-                <p className="mt-2 sm:mt-3 max-w-2xl text-xs sm:text-sm md:text-base text-slate-300 line-clamp-2 sm:line-clamp-3">{primaryVenue.description}</p>
-
-                <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
-                  <div>
-                    <div className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-slate-400">{t('starting_price')}</div>
-                    <div className="mt-0.5 sm:mt-1 text-lg sm:text-xl md:text-2xl font-bold text-white">{formattedPrice ? `${formattedPrice} DZD` : t('price_on_request')}</div>
-                  </div>
-                  <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-900 transition group-hover:bg-rose-50">
-                    {t('view_featured')}
-                    <span aria-hidden="true">→</span>
-                  </span>
-                </div>
-              </div>
-            </Link>
+          {/* Venue grid: on mobile all cards are equal height stacked; on lg: 2-col with large primary */}
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.45fr_0.55fr]">
+            {/* Primary venue - large card */}
+            <VenueImageCard
+              venue={primaryVenue}
+              locale={locale}
+              size="large"
+              t={t}
+            />
 
             {/* Secondary venues */}
-            <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-1">
               {secondaryVenues.map((venue: FeaturedVenue) => (
-                <VenueCard key={venue.id} venue={venue} compact />
+                <VenueImageCard
+                  key={venue.id}
+                  venue={venue}
+                  locale={locale}
+                  size="normal"
+                  t={t}
+                />
               ))}
             </div>
           </div>

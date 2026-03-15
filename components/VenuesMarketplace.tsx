@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Search, X, MapPin, ChevronDown, Filter, SlidersHorizontal } from "lucide-react";
+import { Search, X, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { VenueCard } from "@/components/VenueCard";
+import VenueOnboarding from "@/components/VenueOnboarding";
 import { WILAYAS, getWilayas } from "@/lib/wilayas";
 
 type Venue = {
@@ -34,11 +36,15 @@ interface VenuesMarketplaceProps {
 
 type BottomSheetType = "category" | "location" | "city" | null;
 
+const ONBOARDING_KEY = "ahj_onboarding_done";
+
 export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
     const t = useTranslations("VenuesList");
     const tCommon = useTranslations();
     const locale = useLocale();
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
     const wilayas = useMemo(() => getWilayas(tCommon), [tCommon]);
     const categoryOptions = useMemo(() => ([
         { id: "wedding-hall", label: tCommon("Footer.links.wedding_halls") },
@@ -53,13 +59,25 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
     const [selectedCity, setSelectedCity] = useState("");
     const [cities, setCities] = useState<CityOption[]>([]);
     const [citiesLoading, setCitiesLoading] = useState(false);
-    // Bottom sheet state (mobile)
     const [activeSheet, setActiveSheet] = useState<BottomSheetType>(null);
-    // Desktop: always expanded filter panel
-    const [showDesktopFilters, setShowDesktopFilters] = useState(false);
     const citiesCacheRef = useRef(new Map<string, CityOption[]>());
 
-    const normalizeWilayaValue = (value?: string | null) => {
+    // Onboarding state - show wizard unless returning user
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [onboardingReady, setOnboardingReady] = useState(false);
+
+    // Check session/URL on mount
+    useEffect(() => {
+        const hasUrlParams = !!(searchParams.get("category") || searchParams.get("location") || searchParams.get("q"));
+        const alreadyDone = typeof sessionStorage !== "undefined" && sessionStorage.getItem(ONBOARDING_KEY) === "1";
+
+        if (!hasUrlParams && !alreadyDone) {
+            setShowOnboarding(true);
+        }
+        setOnboardingReady(true);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const normalizeWilayaValue = useCallback((value?: string | null) => {
         if (!value) return "";
         const normalized = value.toLowerCase();
         const match = WILAYAS.find((item) => {
@@ -67,14 +85,14 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
             return itemId === normalized || itemId.replace(/\s+/g, "-") === normalized || item.code === value;
         });
         return match?.id || value;
-    };
+    }, []);
 
     useEffect(() => {
         setSearchQuery(searchParams.get("q") || "");
         setSelectedCategory(searchParams.get("category") || "");
         setSelectedWilaya(normalizeWilayaValue(searchParams.get("location")));
         setSelectedCity(searchParams.get("city") || "");
-    }, [searchParams]);
+    }, [searchParams, normalizeWilayaValue]);
 
     useEffect(() => {
         if (!selectedWilaya) {
@@ -107,14 +125,52 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
             const matchesCity = selectedCity ? venue.city === selectedCity : true;
             return matchesSearch && matchesCategory && matchesWilaya && matchesCity;
         });
-    }, [venues, searchQuery, selectedCategory, selectedWilaya, selectedCity]);
+    }, [venues, searchQuery, selectedCategory, selectedWilaya, selectedCity, normalizeWilayaValue]);
+
+    // Push filters to URL (keeps browser history)
+    const pushFilters = useCallback((params: {
+        category?: string;
+        location?: string;
+        city?: string;
+        q?: string;
+    }) => {
+        const sp = new URLSearchParams();
+        if (params.category) sp.set("category", params.category);
+        if (params.location) sp.set("location", params.location);
+        if (params.city) sp.set("city", params.city);
+        if (params.q) sp.set("q", params.q);
+        const qs = sp.toString();
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    }, [router, pathname]);
 
     const clearFilters = () => {
         setSearchQuery("");
         setSelectedCategory("");
         setSelectedWilaya("");
         setSelectedCity("");
+        router.replace(pathname, { scroll: false });
     };
+
+    // Handle onboarding completion
+    const handleOnboardingComplete = useCallback((category: string, location: string) => {
+        if (typeof sessionStorage !== "undefined") {
+            sessionStorage.setItem(ONBOARDING_KEY, "1");
+        }
+        setShowOnboarding(false);
+        // Apply selections as URL params
+        const sp = new URLSearchParams();
+        if (category) sp.set("category", category);
+        if (location) sp.set("location", location);
+        const qs = sp.toString();
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
+    }, [router, pathname]);
+
+    const handleOnboardingSkip = useCallback(() => {
+        if (typeof sessionStorage !== "undefined") {
+            sessionStorage.setItem(ONBOARDING_KEY, "1");
+        }
+        setShowOnboarding(false);
+    }, []);
 
     const hasActiveFilters = !!(searchQuery || selectedWilaya || selectedCity || selectedCategory);
     const resultCount = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(filteredVenues.length);
@@ -124,12 +180,43 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
 
     const closeSheet = () => setActiveSheet(null);
 
+    // Onboarding screen (full-width, white bg)
+    if (!onboardingReady) {
+        return <div className="bg-white min-h-screen" />;
+    }
+
+    if (showOnboarding) {
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex flex-col">
+                {/* Minimal top bar with skip */}
+                <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-100 bg-white">
+                    <h2 className="text-sm font-semibold text-slate-700">{t("title")}</h2>
+                    <button
+                        onClick={handleOnboardingSkip}
+                        className="text-xs text-slate-400 hover:text-slate-600 transition"
+                    >
+                        {tCommon("VenueOnboarding.skip")}
+                    </button>
+                </div>
+                {/* Wizard */}
+                <div className="flex-1 flex items-start justify-center pt-8 sm:pt-12 px-4 pb-12">
+                    <div className="w-full max-w-lg">
+                        <VenueOnboarding
+                            onComplete={handleOnboardingComplete}
+                            onSkip={handleOnboardingSkip}
+                        />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-slate-50 min-h-screen">
-            {/* ===== Compact Header ===== */}
+            {/* ===== Compact sticky header ===== */}
             <div className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
                 <div className="container mx-auto px-4">
-                    {/* Title row - very compact on mobile */}
+                    {/* Title row */}
                     <div className="flex items-center justify-between gap-3 py-3">
                         <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">{t("title")}</h1>
                         <span className="text-xs text-slate-500 shrink-0 font-medium">
@@ -143,13 +230,24 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
                             <input
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    pushFilters({
+                                        category: selectedCategory,
+                                        location: selectedWilaya,
+                                        city: selectedCity,
+                                        q: e.target.value,
+                                    });
+                                }}
                                 placeholder={t("search_placeholder")}
                                 className="w-full rounded-xl border border-slate-200 bg-slate-50 ps-10 pe-9 py-2.5 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 focus:bg-white"
                             />
                             {searchQuery && (
                                 <button
-                                    onClick={() => setSearchQuery("")}
+                                    onClick={() => {
+                                        setSearchQuery("");
+                                        pushFilters({ category: selectedCategory, location: selectedWilaya, city: selectedCity });
+                                    }}
                                     className="absolute end-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full hover:bg-slate-200"
                                 >
                                     <X className="h-3.5 w-3.5 text-slate-400" />
@@ -158,13 +256,17 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                         </div>
                     </div>
 
-                    {/* ===== Horizontal filter chip strip (mobile) / full row (desktop) ===== */}
+                    {/* Filter chip strip */}
                     <div className="pb-3 flex items-center gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
                         {/* Category chips */}
                         {categoryOptions.map((option) => (
                             <button
                                 key={option.id}
-                                onClick={() => setSelectedCategory((c) => c === option.id ? "" : option.id)}
+                                onClick={() => {
+                                    const next = selectedCategory === option.id ? "" : option.id;
+                                    setSelectedCategory(next);
+                                    pushFilters({ category: next, location: selectedWilaya, city: selectedCity, q: searchQuery });
+                                }}
                                 className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition whitespace-nowrap ${
                                     selectedCategory === option.id
                                         ? "border-primary-400 bg-primary-500 text-white shadow-sm"
@@ -175,10 +277,9 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                             </button>
                         ))}
 
-                        {/* Divider line */}
                         <div className="shrink-0 h-5 w-px bg-slate-200 mx-1" />
 
-                        {/* Location chip - opens bottom sheet on mobile, inline select on desktop */}
+                        {/* Mobile: Location chip */}
                         <button
                             onClick={() => setActiveSheet("location")}
                             className={`sm:hidden shrink-0 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition whitespace-nowrap ${
@@ -192,21 +293,30 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                             {selectedWilaya && (
                                 <span
                                     className="ms-0.5 p-0.5 rounded-full hover:bg-white/20"
-                                    onClick={(e) => { e.stopPropagation(); setSelectedWilaya(""); setSelectedCity(""); }}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedWilaya("");
+                                        setSelectedCity("");
+                                        pushFilters({ category: selectedCategory, q: searchQuery });
+                                    }}
                                 >
                                     <X className="h-2.5 w-2.5" />
                                 </span>
                             )}
                         </button>
 
-                        {/* Desktop location selects - inline */}
+                        {/* Desktop location selects */}
                         <div className="hidden sm:flex items-center gap-2">
                             <div className="relative">
                                 <MapPin className="absolute start-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                                 <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                                 <select
                                     value={selectedWilaya}
-                                    onChange={(e) => { setSelectedWilaya(e.target.value); setSelectedCity(""); }}
+                                    onChange={(e) => {
+                                        setSelectedWilaya(e.target.value);
+                                        setSelectedCity("");
+                                        pushFilters({ category: selectedCategory, location: e.target.value, q: searchQuery });
+                                    }}
                                     className="appearance-none rounded-full border border-slate-200 bg-white ps-8 pe-7 py-1.5 text-xs font-medium shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200"
                                 >
                                     <option value="">{t("select_wilaya")}</option>
@@ -221,7 +331,10 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                     <ChevronDown className="absolute end-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                                     <select
                                         value={selectedCity}
-                                        onChange={(e) => setSelectedCity(e.target.value)}
+                                        onChange={(e) => {
+                                            setSelectedCity(e.target.value);
+                                            pushFilters({ category: selectedCategory, location: selectedWilaya, city: e.target.value, q: searchQuery });
+                                        }}
                                         disabled={citiesLoading}
                                         className="appearance-none rounded-full border border-slate-200 bg-white ps-8 pe-7 py-1.5 text-xs font-medium shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
                                     >
@@ -234,7 +347,7 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                             )}
                         </div>
 
-                        {/* City chip on mobile (only when wilaya is selected) */}
+                        {/* Mobile city chip */}
                         {selectedWilaya && (
                             <button
                                 onClick={() => setActiveSheet("city")}
@@ -249,7 +362,11 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                 {selectedCity && (
                                     <span
                                         className="ms-0.5 p-0.5 rounded-full hover:bg-white/20"
-                                        onClick={(e) => { e.stopPropagation(); setSelectedCity(""); }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedCity("");
+                                            pushFilters({ category: selectedCategory, location: selectedWilaya, q: searchQuery });
+                                        }}
                                     >
                                         <X className="h-2.5 w-2.5" />
                                     </span>
@@ -267,6 +384,21 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                 {t("clear_filters")}
                             </button>
                         )}
+
+                        {/* Re-run onboarding */}
+                        <button
+                            onClick={() => {
+                                if (typeof sessionStorage !== "undefined") {
+                                    sessionStorage.removeItem(ONBOARDING_KEY);
+                                }
+                                clearFilters();
+                                setShowOnboarding(true);
+                            }}
+                            className="shrink-0 flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-slate-300 transition whitespace-nowrap"
+                            title="Restart search"
+                        >
+                            <SlidersHorizontal className="h-3 w-3" />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -298,19 +430,15 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
             {/* ===== Mobile Bottom Sheets ===== */}
             {activeSheet !== null && (
                 <div className="sm:hidden fixed inset-0 z-50 flex items-end">
-                    {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
                         onClick={closeSheet}
                     />
-                    {/* Sheet */}
                     <div className="relative w-full bg-white rounded-t-2xl shadow-2xl max-h-[70vh] flex flex-col">
-                        {/* Handle */}
                         <div className="flex justify-center pt-3 pb-1">
                             <div className="w-10 h-1 rounded-full bg-slate-300" />
                         </div>
 
-                        {/* Location sheet */}
                         {activeSheet === "location" && (
                             <>
                                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
@@ -321,7 +449,12 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                 </div>
                                 <div className="overflow-y-auto flex-1 p-4 space-y-1">
                                     <button
-                                        onClick={() => { setSelectedWilaya(""); setSelectedCity(""); closeSheet(); }}
+                                        onClick={() => {
+                                            setSelectedWilaya("");
+                                            setSelectedCity("");
+                                            pushFilters({ category: selectedCategory, q: searchQuery });
+                                            closeSheet();
+                                        }}
                                         className={`w-full text-start px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                                             !selectedWilaya ? "bg-primary-50 text-primary-700" : "hover:bg-slate-50 text-slate-700"
                                         }`}
@@ -331,7 +464,12 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                     {wilayas.map((w) => (
                                         <button
                                             key={w.id}
-                                            onClick={() => { setSelectedWilaya(w.id); setSelectedCity(""); closeSheet(); }}
+                                            onClick={() => {
+                                                setSelectedWilaya(w.id);
+                                                setSelectedCity("");
+                                                pushFilters({ category: selectedCategory, location: w.id, q: searchQuery });
+                                                closeSheet();
+                                            }}
                                             className={`w-full text-start px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                                                 selectedWilaya === w.id ? "bg-primary-50 text-primary-700" : "hover:bg-slate-50 text-slate-700"
                                             }`}
@@ -343,7 +481,6 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                             </>
                         )}
 
-                        {/* City sheet */}
                         {activeSheet === "city" && (
                             <>
                                 <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
@@ -358,7 +495,11 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                     ) : (
                                         <>
                                             <button
-                                                onClick={() => { setSelectedCity(""); closeSheet(); }}
+                                                onClick={() => {
+                                                    setSelectedCity("");
+                                                    pushFilters({ category: selectedCategory, location: selectedWilaya, q: searchQuery });
+                                                    closeSheet();
+                                                }}
                                                 className={`w-full text-start px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                                                     !selectedCity ? "bg-primary-50 text-primary-700" : "hover:bg-slate-50 text-slate-700"
                                                 }`}
@@ -368,7 +509,11 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                                             {cities.map((city) => (
                                                 <button
                                                     key={city.id}
-                                                    onClick={() => { setSelectedCity(city.commune_name); closeSheet(); }}
+                                                    onClick={() => {
+                                                        setSelectedCity(city.commune_name);
+                                                        pushFilters({ category: selectedCategory, location: selectedWilaya, city: city.commune_name, q: searchQuery });
+                                                        closeSheet();
+                                                    }}
                                                     className={`w-full text-start px-4 py-2.5 rounded-xl text-sm font-medium transition ${
                                                         selectedCity === city.commune_name ? "bg-primary-50 text-primary-700" : "hover:bg-slate-50 text-slate-700"
                                                     }`}
