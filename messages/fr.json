@@ -313,5 +313,27 @@
     "Djanet": "Djanet",
     "In_Salah": "In Salah",
     "In_Guezzam": "In Guezzam"
+  },
+  "Login": {
+    "brand": "Ahjaz Liqaati",
+    "sign_in": "Se connecter",
+    "sign_up": "S'inscrire",
+    "full_name": "Nom complet",
+    "full_name_placeholder": "Votre nom complet",
+    "email": "Adresse email",
+    "email_placeholder": "vous@exemple.com",
+    "password": "Mot de passe",
+    "password_placeholder": "Entrez votre mot de passe",
+    "remember_me": "Se souvenir de moi",
+    "forgot_password": "Mot de passe oublié ?",
+    "agree_terms": "J'accepte les",
+    "terms": "Conditions d'utilisation",
+    "and": "et la",
+    "privacy": "Politique de confidentialité",
+    "create_account": "Créer un compte",
+    "or_continue": "ou continuer avec",
+    "back_home": "Retour à l'accueil",
+    "hero_title": "Trouvez le lieu parfait pour votre événement",
+    "hero_desc": "Découvrez et réservez des espaces événementiels uniques à travers l'Algérie."
   }
 }

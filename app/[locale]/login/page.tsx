@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function LoginPage() {
+  const t = useTranslations('Login');
   const [isLogin, setIsLogin] = useState(true);
 
   return (
@@ -18,7 +20,7 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="text-2xl font-bold text-white">LandingPro</span>
+            <span className="text-2xl font-bold text-white">{t('brand')}</span>
           </div>
 
           {/* Decorative illustration */}
@@ -29,10 +31,10 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-2xl font-bold text-white mb-4">
-            Build stunning landing pages in minutes
+            {t('hero_title')}
           </h2>
           <p className="text-primary-200">
-            Join thousands of businesses creating beautiful, high-converting landing pages with our AI-powered builder.
+            {t('hero_desc')}
           </p>
         </div>
       </div>
@@ -47,7 +49,7 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <span className="text-xl font-bold text-slate-800">LandingPro</span>
+            <span className="text-xl font-bold text-slate-800">{t('brand')}</span>
           </div>
 
           {/* Toggle */}
@@ -58,7 +60,7 @@ export default function LoginPage() {
                 isLogin ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              Sign In
+              {t('sign_in')}
             </button>
             <div className="w-px h-4 bg-slate-200" />
             <button
@@ -67,7 +69,7 @@ export default function LoginPage() {
                 !isLogin ? 'text-primary-600' : 'text-slate-400 hover:text-slate-600'
               }`}
             >
-              Sign Up
+              {t('sign_up')}
             </button>
           </div>
 
@@ -76,35 +78,35 @@ export default function LoginPage() {
             {!isLogin && (
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
-                  Full Name
+                  {t('full_name')}
                 </label>
                 <input
                   type="text"
                   className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors duration-200"
-                  placeholder="John Doe"
+                  placeholder={t('full_name_placeholder')}
                 />
               </div>
             )}
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Email Address
+                {t('email')}
               </label>
               <input
                 type="email"
                 className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors duration-200"
-                placeholder="you@example.com"
+                placeholder={t('email_placeholder')}
               />
             </div>
 
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Password
+                {t('password')}
               </label>
               <input
                 type="password"
                 className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-colors duration-200"
-                placeholder="Enter your password"
+                placeholder={t('password_placeholder')}
               />
             </div>
 
@@ -115,10 +117,10 @@ export default function LoginPage() {
                     type="checkbox"
                     className="w-3.5 h-3.5 border border-slate-300 rounded text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-xs text-slate-500">Remember me</span>
+                  <span className="text-xs text-slate-500">{t('remember_me')}</span>
                 </label>
                 <a href="#" className="text-xs text-primary-600 hover:text-primary-700">
-                  Forgot password?
+                  {t('forgot_password')}
                 </a>
               </div>
             )}
@@ -131,10 +133,10 @@ export default function LoginPage() {
                     className="w-3.5 h-3.5 mt-0.5 border border-slate-300 rounded text-primary-600 focus:ring-primary-500"
                   />
                   <span className="text-xs text-slate-500">
-                    I agree to the{' '}
-                    <a href="#" className="text-primary-600 hover:text-primary-700">Terms of Service</a>
-                    {' '}and{' '}
-                    <a href="#" className="text-primary-600 hover:text-primary-700">Privacy Policy</a>
+                    {t('agree_terms')}{' '}
+                    <Link href="/terms" className="text-primary-600 hover:text-primary-700">{t('terms')}</Link>
+                    {' '}{t('and')}{' '}
+                    <Link href="/privacy" className="text-primary-600 hover:text-primary-700">{t('privacy')}</Link>
                   </span>
                 </label>
               </div>
@@ -144,14 +146,14 @@ export default function LoginPage() {
               type="submit"
               className="w-full h-9 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
             >
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {isLogin ? t('sign_in') : t('create_account')}
             </button>
           </form>
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-xs text-slate-400">or continue with</span>
+            <span className="text-xs text-slate-400">{t('or_continue')}</span>
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 
@@ -183,7 +185,7 @@ export default function LoginPage() {
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Back to home
+              {t('back_home')}
             </Link>
           </div>
         </div>
