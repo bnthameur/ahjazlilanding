@@ -59,12 +59,12 @@ export default async function FeaturedVenues({ locale }: { locale: string }) {
   return (
     <section className="relative z-10 -mt-8 sm:-mt-14">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="overflow-hidden rounded-2xl sm:rounded-[2rem] border border-slate-200/70 bg-white/90 p-4 sm:p-5 md:p-7 shadow-[0_35px_90px_-60px_rgba(15,23,42,0.65)] backdrop-blur-xl">
-          <div className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div className="overflow-hidden rounded-2xl sm:rounded-[2rem] border border-slate-200/70 bg-white/90 p-3 sm:p-5 md:p-7 shadow-[0_35px_90px_-60px_rgba(15,23,42,0.65)] backdrop-blur-xl">
+          <div className="flex flex-wrap items-end justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
             <div className="max-w-2xl">
               <p className="text-xs uppercase tracking-[0.24em] text-primary-600 font-semibold">{t('eyebrow')}</p>
-              <h2 className="mt-1.5 sm:mt-2 text-xl sm:text-2xl md:text-3xl font-bold text-slate-900">{t('title')}</h2>
-              <p className="mt-1 sm:mt-2 text-xs sm:text-sm md:text-base text-slate-600">{t('subtitle')}</p>
+              <h2 className="mt-1 sm:mt-2 text-lg sm:text-2xl md:text-3xl font-bold text-slate-900">{t('title')}</h2>
+              <p className="mt-0.5 sm:mt-2 text-xs sm:text-sm md:text-base text-slate-600 hidden sm:block">{t('subtitle')}</p>
             </div>
             <Link
               href="/salles"
@@ -75,11 +75,11 @@ export default async function FeaturedVenues({ locale }: { locale: string }) {
             </Link>
           </div>
 
-          <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1.3fr_0.7fr]">
+          <div className="grid gap-3 sm:gap-5 lg:grid-cols-[1.3fr_0.7fr]">
             {/* Primary venue spotlight */}
             <Link
               href={`/salles/${primaryVenue.slug || primaryVenue.id}`}
-              className="group relative overflow-hidden rounded-xl sm:rounded-[1.75rem] bg-slate-950 p-5 sm:p-6 md:p-8 text-white"
+              className="group relative overflow-hidden rounded-xl sm:rounded-[1.75rem] bg-slate-950 p-4 sm:p-6 md:p-8 text-white"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,#fb718522,transparent_35%),linear-gradient(135deg,#0f172a_0%,#111827_45%,#172554_100%)]" />
               <div className="relative">

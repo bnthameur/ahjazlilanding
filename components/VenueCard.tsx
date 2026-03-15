@@ -23,14 +23,15 @@ interface Venue {
 interface VenueCardProps {
     venue: Venue;
     compact?: boolean;
+    /** When true, renders a horizontal layout: image on left, info on right */
+    horizontal?: boolean;
 }
 
-export function VenueCard({ venue, compact = false }: VenueCardProps) {
+export function VenueCard({ venue, compact = false, horizontal = false }: VenueCardProps) {
     const t = useTranslations('VenuesList');
     const tCommon = useTranslations();
     const locale = useLocale();
 
-    // Helper to force number type if DB returns string
     const price = venue.price !== null && venue.price !== undefined ? Number(venue.price) : null;
     const capacity = venue.capacity !== null && venue.capacity !== undefined ? Number(venue.capacity) : null;
     const wilayaLabel = getWilayaLabel(tCommon, venue.wilaya || venue.location);
@@ -45,6 +46,71 @@ export function VenueCard({ venue, compact = false }: VenueCardProps) {
 
     const venueSlug = venue.slug || venue.id;
 
+    // Horizontal layout (mobile list view)
+    if (horizontal) {
+        return (
+            <div className="group flex overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300">
+                {/* Image - fixed width on left */}
+                <Link
+                    href={`/salles/${venueSlug}`}
+                    className="relative shrink-0 w-28 sm:w-36 bg-slate-100 overflow-hidden"
+                    aria-label={venue.title}
+                    tabIndex={-1}
+                >
+                    {venue.images && venue.images.length > 0 ? (
+                        <Image
+                            src={venue.images[0]}
+                            alt={venue.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            sizes="144px"
+                        />
+                    ) : (
+                        <div className="flex h-full items-center justify-center text-slate-300">
+                            <span className="text-3xl">🏛️</span>
+                        </div>
+                    )}
+                    {formattedPrice && (
+                        <div className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2 py-0.5 text-xs font-semibold text-slate-900 shadow-sm backdrop-blur">
+                            {formattedPrice} DZD
+                        </div>
+                    )}
+                </Link>
+
+                {/* Content */}
+                <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-4">
+                    <div>
+                        <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                            <MapPin className="h-3 w-3 text-slate-400 shrink-0" />
+                            <span className="line-clamp-1">{locationLabel || venue.location}</span>
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-900 line-clamp-2 group-hover:text-primary-600 transition-colors leading-snug">
+                            {venue.title}
+                        </h3>
+                        <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                            {venue.description}
+                        </p>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                        {formattedCapacity && (
+                            <div className="flex items-center gap-1 text-xs text-slate-500">
+                                <Users className="h-3 w-3 text-primary-400" />
+                                <span>{formattedCapacity}</span>
+                            </div>
+                        )}
+                        <Link
+                            href={`/salles/${venueSlug}`}
+                            className="ms-auto text-xs font-semibold text-primary-600 hover:text-primary-700 transition"
+                        >
+                            {t('view_details')} →
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Default vertical layout (existing behaviour)
     return (
         <div className={`group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-24px_rgba(15,23,42,0.35)] ${compact ? 'min-h-[22rem]' : ''}`}>
             <div className={`relative w-full overflow-hidden bg-slate-100 ${compact ? 'h-44' : 'h-60'}`}>
