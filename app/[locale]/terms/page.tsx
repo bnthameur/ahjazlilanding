@@ -1,8 +1,27 @@
+import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+
+const SITE_URL = 'https://ahjazliqaati.com';
+
+export async function generateMetadata(props: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+    const { locale } = await props.params;
+    const titles: Record<string, string> = {
+        ar: 'شروط الخدمة — احجز لقاعتي',
+        fr: 'Conditions d\'Utilisation — Ahjaz Liqaati',
+        en: 'Terms of Service — Ahjaz Liqaati',
+    };
+    return {
+        title: titles[locale] || titles.ar,
+        alternates: {
+            canonical: locale === 'ar' ? `${SITE_URL}/terms` : `${SITE_URL}/${locale}/terms`,
+        },
+        robots: { index: true, follow: true },
+    };
+}
 
 export default async function TermsPage(props: {
   params: Promise<{ locale: string }>;

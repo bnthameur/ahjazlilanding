@@ -335,5 +335,24 @@
     "back_home": "Retour à l'accueil",
     "hero_title": "Trouvez le lieu parfait pour votre événement",
     "hero_desc": "Découvrez et réservez des espaces événementiels uniques à travers l'Algérie."
+  },
+  "Links": {
+    "tagline": "La première plateforme de réservation de salles en Algérie",
+    "home": "Accueil",
+    "home_desc": "Découvrez les meilleures salles en Algérie",
+    "browse": "Explorer les Salles",
+    "browse_desc": "Cherchez salles des fêtes, salons et conférences",
+    "list_venue": "Ajouter votre Salle",
+    "list_venue_desc": "Inscrivez-vous et présentez votre salle à des milliers",
+    "owner_login": "Connexion Propriétaire",
+    "owner_login_desc": "Accédez à votre tableau de bord",
+    "how_it_works": "Comment ça marche",
+    "how_it_works_desc": "Étapes simples pour clients et propriétaires",
+    "pricing": "Tarifs et Plans",
+    "pricing_desc": "Plans de visibilité abordables pour les propriétaires",
+    "privacy": "Politique de Confidentialité",
+    "privacy_desc": "Comment nous protégeons vos données",
+    "terms": "Conditions d'Utilisation",
+    "terms_desc": "Conditions d'utilisation de la plateforme"
   }
 }

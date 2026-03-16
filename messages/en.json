@@ -335,5 +335,24 @@
     "back_home": "Back to home",
     "hero_title": "Find the perfect venue for your event",
     "hero_desc": "Discover and book unique event spaces across Algeria."
+  },
+  "Links": {
+    "tagline": "Algeria's #1 venue booking platform",
+    "home": "Homepage",
+    "home_desc": "Discover the best event venues in Algeria",
+    "browse": "Browse Venues",
+    "browse_desc": "Search wedding halls, salons & conference rooms",
+    "list_venue": "List Your Venue",
+    "list_venue_desc": "Register and showcase your venue to thousands",
+    "owner_login": "Venue Owner Login",
+    "owner_login_desc": "Access your venue management dashboard",
+    "how_it_works": "How It Works",
+    "how_it_works_desc": "Simple steps for customers and venue owners",
+    "pricing": "Pricing & Plans",
+    "pricing_desc": "Affordable visibility plans for venue owners",
+    "privacy": "Privacy Policy",
+    "privacy_desc": "How we protect your data",
+    "terms": "Terms of Service",
+    "terms_desc": "Platform usage terms and conditions"
   }
 }

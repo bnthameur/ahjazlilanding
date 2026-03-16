@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
@@ -44,6 +45,90 @@ const CATEGORY_LABELS: Record<string, Record<string, string>> = {
 function getCategoryLabel(category: string | null | undefined, locale: string): string | null {
     if (!category) return null;
     return CATEGORY_LABELS[category]?.[locale] ?? CATEGORY_LABELS[category]?.["en"] ?? null;
+}
+
+const SITE_URL = "https://ahjazliqaati.com";
+
+export async function generateMetadata(props: {
+    params: Promise<{ id: string; locale: string }>;
+}): Promise<Metadata> {
+    const params = await props.params;
+    const { id, locale } = params;
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    const { data: slugVenue } = await supabase
+        .from("venues")
+        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, venue_media(url, media_type, is_cover)")
+        .eq("slug", id)
+        .maybeSingle();
+
+    const venue = slugVenue ?? (await supabase
+        .from("venues")
+        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, venue_media(url, media_type, is_cover)")
+        .eq("id", id)
+        .maybeSingle()).data;
+
+    if (!venue) return { title: "Venue Not Found" };
+
+    const coverMedia = (venue.venue_media as any[])?.find((m: any) => m.is_cover && m.media_type === "image");
+    const firstImage = coverMedia?.url || (venue.venue_media as any[])?.[0]?.url || (venue.images as string[])?.[0] || null;
+
+    const locationText = [venue.city, venue.wilaya, locale === "ar" ? "الجزائر" : "Algeria"].filter(Boolean).join(", ");
+    const categoryLabels: Record<string, Record<string, string>> = {
+        "wedding-hall": { ar: "قاعة أفراح", fr: "Salle des Fêtes", en: "Wedding Hall" },
+        "event-salon": { ar: "صالون مناسبات", fr: "Salon Événementiel", en: "Event Salon" },
+        "conference-room": { ar: "قاعة مؤتمرات", fr: "Salle de Conférence", en: "Conference Room" },
+        "garden-outdoor": { ar: "حديقة / فضاء مفتوح", fr: "Jardin / Extérieur", en: "Garden / Outdoor" },
+    };
+    const catLabel = venue.category ? categoryLabels[venue.category]?.[locale] || "" : "";
+
+    const titleSeo = locale === "ar"
+        ? `${venue.title} — ${catLabel} في ${locationText}`
+        : locale === "fr"
+            ? `${venue.title} — ${catLabel} à ${locationText}`
+            : `${venue.title} — ${catLabel} in ${locationText}`;
+
+    const descSeo = venue.description
+        ? venue.description.slice(0, 160)
+        : locale === "ar"
+            ? `احجز ${venue.title} في ${locationText}. شاهد الصور، الأسعار، والتفاصيل.`
+            : locale === "fr"
+                ? `Réservez ${venue.title} à ${locationText}. Photos, prix et détails.`
+                : `Book ${venue.title} in ${locationText}. Photos, prices and details.`;
+
+    const slug = venue.slug || venue.id;
+    const canonical = locale === "ar"
+        ? `${SITE_URL}/salles/${slug}`
+        : `${SITE_URL}/${locale}/salles/${slug}`;
+
+    return {
+        title: titleSeo,
+        description: descSeo,
+        alternates: {
+            canonical,
+            languages: {
+                ar: `${SITE_URL}/salles/${slug}`,
+                fr: `${SITE_URL}/fr/salles/${slug}`,
+                en: `${SITE_URL}/en/salles/${slug}`,
+            },
+        },
+        openGraph: {
+            type: "article",
+            title: titleSeo,
+            description: descSeo,
+            url: canonical,
+            siteName: locale === "ar" ? "احجز لقاعتي" : "Ahjaz Liqaati",
+            locale: locale === "ar" ? "ar_DZ" : locale === "fr" ? "fr_DZ" : "en_US",
+            images: firstImage ? [{ url: firstImage, width: 1200, height: 630, alt: venue.title }] : [],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: titleSeo,
+            description: descSeo,
+            images: firstImage ? [firstImage] : [],
+        },
+    };
 }
 
 export default async function VenueDetailsPage(props: {
@@ -418,6 +503,82 @@ export default async function VenueDetailsPage(props: {
                 contactEmail={contactEmail}
                 bookNowLabel={t("book_now")}
                 priceLabel={t("price_label")}
+            />
+
+            {/* JSON-LD Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "EventVenue",
+                        name: venue.title,
+                        description: venue.description || "",
+                        url: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}`,
+                        image: heroImages.map((img) => img.url),
+                        address: {
+                            "@type": "PostalAddress",
+                            addressLocality: venue.city || "",
+                            addressRegion: venue.wilaya || venue.location || "",
+                            addressCountry: "DZ",
+                        },
+                        geo: venue.latitude && venue.longitude ? {
+                            "@type": "GeoCoordinates",
+                            latitude: venue.latitude,
+                            longitude: venue.longitude,
+                        } : undefined,
+                        maximumAttendeeCapacity: venue.capacity || undefined,
+                        ...(venue.price ? {
+                            priceRange: `${venue.price} DZD`,
+                            offers: {
+                                "@type": "Offer",
+                                price: venue.price,
+                                priceCurrency: "DZD",
+                                availability: "https://schema.org/InStock",
+                            },
+                        } : {}),
+                        telephone: contactPhone || undefined,
+                        email: contactEmail || undefined,
+                        ...(venue.amenities?.length ? {
+                            amenityFeature: (venue.amenities as string[]).map((a: string) => ({
+                                "@type": "LocationFeatureSpecification",
+                                name: a,
+                                value: true,
+                            })),
+                        } : {}),
+                    }),
+                }}
+            />
+
+            {/* BreadcrumbList JSON-LD */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "BreadcrumbList",
+                        itemListElement: [
+                            {
+                                "@type": "ListItem",
+                                position: 1,
+                                name: locale === "ar" ? "الرئيسية" : locale === "fr" ? "Accueil" : "Home",
+                                item: locale === "ar" ? SITE_URL : `${SITE_URL}/${locale}`,
+                            },
+                            {
+                                "@type": "ListItem",
+                                position: 2,
+                                name: locale === "ar" ? "القاعات" : locale === "fr" ? "Salles" : "Venues",
+                                item: locale === "ar" ? `${SITE_URL}/salles` : `${SITE_URL}/${locale}/salles`,
+                            },
+                            {
+                                "@type": "ListItem",
+                                position: 3,
+                                name: venue.title,
+                                item: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}`,
+                            },
+                        ],
+                    }),
+                }}
             />
         </div>
     );
