@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
-import { Emoji } from 'react-apple-emojis';
+import Image from 'next/image';
 
 export default function Footer() {
     const t = useTranslations('Footer');
@@ -73,10 +73,8 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="col-span-2 lg:col-span-1">
                         <Link href="/" className="inline-flex items-center gap-2 mb-4">
-                            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                                <Emoji name="classical-building" width={24} />
-                            </div>
-                            <span className="text-xl font-bold text-white">Ahjazli Qaati</span>
+                            <Image src="/logo.png" alt="Ahjazli Qaati" width={44} height={44} className="w-11 h-11 object-contain" />
+                            <span className="text-xl font-bold text-white">{locale === 'ar' ? 'احجز لقاعتي' : 'Ahjazli Qaati'}</span>
                         </Link>
                         <p className="text-sm text-slate-400 mb-4">
                             {t('description')}
@@ -158,7 +156,7 @@ export default function Footer() {
                         © {new Date().getFullYear()} {t('copyright')}
                     </p>
                     <p className="text-sm text-slate-500 flex items-center gap-1">
-                        {t('made_with')} <Emoji name="red-heart" width={16} /> {t('in_algeria')}
+                        {t('made_with')} ❤️ {t('in_algeria')}
                     </p>
                 </div>
             </div>

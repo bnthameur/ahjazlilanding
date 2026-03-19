@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 // import Link from 'next/link'; // Replaced by custom Link
 import { Link, usePathname } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Header() {
@@ -42,11 +43,9 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg">🏛️</span>
-            </div>
-            <span className="text-lg font-bold text-slate-900">{t('title')}</span>
+          <Link href="/" className="flex items-center gap-1.5">
+            <Image src="/logo.png" alt={t('title')} width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 object-contain" priority />
+            <span className="text-lg font-bold text-slate-900 hidden sm:inline">{t('title')}</span>
           </Link>
 
           {/* Desktop Navigation */}

@@ -15,6 +15,19 @@ import {
     Mail,
     Star,
     Tag,
+    Car,
+    Snowflake,
+    Volume2,
+    Lightbulb,
+    UtensilsCrossed,
+    Wifi,
+    Accessibility,
+    Music,
+    Trees,
+    Waves,
+    Sun,
+    Theater,
+    type LucideIcon,
 } from "lucide-react";
 import VenueBookingCard from "@/components/VenueBookingCard";
 import ImageGallery, { MediaItem } from "@/components/ImageGallery";
@@ -23,6 +36,7 @@ import VenueHeroGallery, { HeroMediaItem } from "@/components/VenueHeroGallery";
 import ShareButton from "@/components/ShareButton";
 import { getWilayaLabel } from "@/lib/wilayas";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface VenueMedia {
     id: string;
@@ -181,10 +195,24 @@ export default async function VenueDetailsPage(props: {
     const breadcrumbVenues = locale === "ar" ? "القاعات" : locale === "fr" ? "Salles" : "Venues";
     const mediaCountLabel = locale === "ar" ? "وسائط" : locale === "fr" ? "médias" : "media";
 
-    const AMENITY_ICONS: Record<string, string> = {
-        "Parking": "🅿️", "Air Conditioning": "❄️", "Sound System": "🔊", "Lighting": "💡",
-        "Catering": "🍽️", "Wi-Fi": "📶", "Wheelchair Access": "♿", "Dance Floor": "💃",
-        "Garden": "🌿", "Pool": "🏊", "Terrace": "🏖️", "Stage": "🎭",
+    const AMENITY_ICONS: Record<string, LucideIcon> = {
+        "Parking": Car, "Air Conditioning": Snowflake, "Sound System": Volume2, "Lighting": Lightbulb,
+        "Catering": UtensilsCrossed, "Wi-Fi": Wifi, "Wheelchair Access": Accessibility, "Dance Floor": Music,
+        "Garden": Trees, "Pool": Waves, "Terrace": Sun, "Stage": Theater,
+    };
+    const AMENITY_TRANSLATIONS: Record<string, Record<string, string>> = {
+        "Parking": { ar: "موقف سيارات", fr: "Parking", en: "Parking" },
+        "Air Conditioning": { ar: "تكييف", fr: "Climatisation", en: "Air Conditioning" },
+        "Sound System": { ar: "نظام صوت", fr: "Sonorisation", en: "Sound System" },
+        "Lighting": { ar: "إضاءة", fr: "Éclairage", en: "Lighting" },
+        "Catering": { ar: "خدمة طعام", fr: "Traiteur", en: "Catering" },
+        "Wi-Fi": { ar: "واي فاي", fr: "Wi-Fi", en: "Wi-Fi" },
+        "Wheelchair Access": { ar: "وصول ذوي الاحتياجات", fr: "Accès PMR", en: "Wheelchair Access" },
+        "Dance Floor": { ar: "حلبة رقص", fr: "Piste de danse", en: "Dance Floor" },
+        "Garden": { ar: "حديقة", fr: "Jardin", en: "Garden" },
+        "Pool": { ar: "مسبح", fr: "Piscine", en: "Pool" },
+        "Terrace": { ar: "شرفة", fr: "Terrasse", en: "Terrace" },
+        "Stage": { ar: "منصة", fr: "Scène", en: "Stage" },
     };
 
     return (
@@ -315,13 +343,21 @@ export default async function VenueDetailsPage(props: {
                             <section className="py-6 border-b border-slate-100">
                                 <h2 className="text-lg font-bold text-slate-900 mb-4">{t("features_label")}</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                    {(venue.amenities as string[]).map((amenity: string) => (
-                                        <div key={amenity}
-                                            className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-3 text-sm text-slate-700 hover:border-primary-200 hover:bg-primary-50/50 transition-colors">
-                                            <span className="text-base">{AMENITY_ICONS[amenity] || "✅"}</span>
-                                            <span className="font-medium">{amenity}</span>
-                                        </div>
-                                    ))}
+                                    {(venue.amenities as string[]).map((amenity: string) => {
+                                        const IconComp = AMENITY_ICONS[amenity];
+                                        const label = AMENITY_TRANSLATIONS[amenity]?.[locale] || amenity;
+                                        return (
+                                            <div key={amenity}
+                                                className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-3 text-sm text-slate-700 hover:border-primary-200 hover:bg-primary-50/50 transition-colors">
+                                                {IconComp ? (
+                                                    <IconComp className="w-4.5 h-4.5 text-primary-500 shrink-0" />
+                                                ) : (
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-primary-400 shrink-0" />
+                                                )}
+                                                <span className="font-medium">{label}</span>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </section>
                         )}
@@ -500,6 +536,9 @@ export default async function VenueDetailsPage(props: {
                     ],
                 }),
             }} />
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 }

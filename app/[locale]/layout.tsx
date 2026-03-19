@@ -62,7 +62,7 @@ export function generateMetadata({ params }: { params: { locale: string } }): Me
       description: seo.description,
       images: [
         {
-          url: '/og-image.png',
+          url: '/logo.png',
           width: 1200,
           height: 630,
           alt: locale === 'ar' ? 'احجز لقاعتي — منصة حجز القاعات' : 'Ahjaz Liqaati — Venue Booking Platform',
@@ -73,7 +73,7 @@ export function generateMetadata({ params }: { params: { locale: string } }): Me
       card: 'summary_large_image',
       title: seo.title,
       description: seo.description,
-      images: ['/og-image.png'],
+      images: ['/logo.png'],
     },
     robots: {
       index: true,
@@ -85,6 +85,10 @@ export function generateMetadata({ params }: { params: { locale: string } }): Me
         'max-image-preview': 'large',
         'max-snippet': -1,
       },
+    },
+    icons: {
+      icon: '/logo.png',
+      apple: '/logo.png',
     },
     verification: {},
     category: 'business',
@@ -130,7 +134,7 @@ export default async function RootLayout({
     name: 'Ahjaz Liqaati',
     alternateName: 'احجز لقاعتي',
     url: SITE_URL,
-    logo: `${SITE_URL}/og-image.png`,
+    logo: `${SITE_URL}/logo.png`,
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
