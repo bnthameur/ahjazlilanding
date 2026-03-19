@@ -229,7 +229,15 @@
     "email": "E-mail",
     "phone": "Téléphone",
     "message": "Message",
-    "send": "Envoyer le Message"
+    "send": "Envoyer le Message",
+    "equipment_title": "Équipements",
+    "prestations_title": "Prestations",
+    "reviews_title": "Commentaires",
+    "reviews_count": "{count} Commentaires",
+    "no_reviews": "Aucun commentaire pour le moment",
+    "location_map": "Localisation",
+    "available": "Disponible",
+    "included": "Inclus"
   },
   "Legal": {
     "privacy_title": "Politique de Confidentialité",

@@ -27,6 +27,10 @@ import {
     Waves,
     Sun,
     Theater,
+    Wrench,
+    Receipt,
+    MapPinned,
+    MessageSquareQuote,
     type LucideIcon,
 } from "lucide-react";
 import VenueBookingCard from "@/components/VenueBookingCard";
@@ -169,6 +173,18 @@ export default async function VenueDetailsPage(props: {
 
     if (!venue) notFound();
 
+    // Fetch reviews
+    const { data: reviews } = await supabase
+        .from("venue_reviews")
+        .select("*")
+        .eq("venue_id", venue.id)
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false });
+
+    const avgRating = reviews && reviews.length > 0
+        ? Math.round((reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length) * 10) / 10
+        : null;
+
     const wilayaLabel = getWilayaLabel(tCommon, venue.wilaya || venue.location);
     const locationLabel = [venue.city, wilayaLabel || venue.location].filter(Boolean).join(", ");
     const contactPhone = venue.phone || venue.profiles?.phone || null;
@@ -304,9 +320,9 @@ export default async function VenueDetailsPage(props: {
                                 )}
                                 <div className="flex items-center gap-1">
                                     {[1, 2, 3, 4, 5].map((s) => (
-                                        <Star key={s} className={`w-3.5 h-3.5 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
+                                        <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.round(avgRating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
                                     ))}
-                                    <span className="text-xs text-slate-500 ms-1">4.0</span>
+                                    {avgRating ? <span className="text-xs text-slate-500 ms-1">{avgRating}</span> : null}
                                 </div>
                             </div>
                         </div>
@@ -337,6 +353,53 @@ export default async function VenueDetailsPage(props: {
                                 {venue.description}
                             </p>
                         </section>
+
+                        {/* Equipment */}
+                        {venue.equipment && (venue.equipment as any[]).length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Wrench className="w-5 h-5 text-primary-500" />
+                                    <h2 className="text-lg font-bold text-slate-900">{t("equipment_title")}</h2>
+                                </div>
+                                <div className="bg-slate-50 rounded-2xl border border-slate-100 divide-y divide-slate-100">
+                                    {(venue.equipment as { name: string; value: string }[]).map((item, i) => (
+                                        <div key={i} className="flex items-center justify-between px-4 py-3.5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center">
+                                                    <Wrench className="w-3.5 h-3.5 text-slate-500" />
+                                                </div>
+                                                <span className="text-sm font-medium text-slate-800">{item.name}</span>
+                                            </div>
+                                            <span className="text-xs font-semibold text-primary-600 bg-primary-50 border border-primary-100 rounded-full px-3 py-1">
+                                                {item.value}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Prestations / Services */}
+                        {venue.prestations && (venue.prestations as any[]).length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Receipt className="w-5 h-5 text-primary-500" />
+                                    <h2 className="text-lg font-bold text-slate-900">{t("prestations_title")}</h2>
+                                </div>
+                                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                                    <div className="divide-y divide-slate-100">
+                                        {(venue.prestations as { name: string; price: number }[]).map((item, i) => (
+                                            <div key={i} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors">
+                                                <span className="text-sm font-medium text-slate-700">{item.name}</span>
+                                                <span className="text-sm font-bold text-slate-900 whitespace-nowrap">
+                                                    {new Intl.NumberFormat(locale).format(item.price)} DA
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </section>
+                        )}
 
                         {/* Amenities */}
                         {venue.amenities && (venue.amenities as string[]).length > 0 && (
@@ -388,6 +451,71 @@ export default async function VenueDetailsPage(props: {
                                 </div>
                             </div>
                         </section>
+
+                        {/* Map */}
+                        {venue.latitude && venue.longitude && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <MapPinned className="w-5 h-5 text-primary-500" />
+                                    <h2 className="text-lg font-bold text-slate-900">{t("location_map")}</h2>
+                                </div>
+                                <div className="rounded-2xl overflow-hidden border border-slate-200">
+                                    <iframe
+                                        src={`https://www.google.com/maps?q=${venue.latitude},${venue.longitude}&z=15&output=embed`}
+                                        width="100%"
+                                        height="280"
+                                        style={{ border: 0 }}
+                                        allowFullScreen
+                                        loading="lazy"
+                                        referrerPolicy="no-referrer-when-downgrade"
+                                        className="w-full"
+                                    />
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Reviews */}
+                        {reviews && reviews.length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <MessageSquareQuote className="w-5 h-5 text-primary-500" />
+                                    <h2 className="text-lg font-bold text-slate-900">{t("reviews_title")}</h2>
+                                </div>
+                                <div className="flex items-center gap-2 mb-5">
+                                    <div className="flex items-center gap-0.5">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                            <Star key={s} className={`w-4 h-4 ${s <= Math.round(avgRating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
+                                        ))}
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-900">{avgRating}</span>
+                                    <span className="text-sm text-slate-500">({reviews.length})</span>
+                                </div>
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                    {reviews.map((review: any) => (
+                                        <div key={review.id} className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                                                        <span className="text-sm font-bold text-primary-700">{review.reviewer_name?.charAt(0)?.toUpperCase()}</span>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-semibold text-slate-900">{review.reviewer_name}</div>
+                                                        <div className="text-[10px] text-slate-400">{new Date(review.created_at).toLocaleDateString(locale === 'ar' ? 'ar-DZ' : locale === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'short' })}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-0.5">
+                                                    {[1, 2, 3, 4, 5].map((s) => (
+                                                        <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
+                                                    ))}
+                                                    <span className="text-xs font-bold text-slate-700 ms-1">{review.rating}</span>
+                                                </div>
+                                            </div>
+                                            {review.comment && <p className="text-sm text-slate-600 leading-relaxed">{review.comment}</p>}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
 
                         {/* Contact (mobile) */}
                         {(contactPhone || contactWhatsapp || contactEmail) && (

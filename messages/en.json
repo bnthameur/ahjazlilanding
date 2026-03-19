@@ -229,7 +229,15 @@
     "email": "Email",
     "phone": "Phone",
     "message": "Message",
-    "send": "Send Message"
+    "send": "Send Message",
+    "equipment_title": "Equipment",
+    "prestations_title": "Services & Pricing",
+    "reviews_title": "Reviews",
+    "reviews_count": "{count} Reviews",
+    "no_reviews": "No reviews yet",
+    "location_map": "Location on Map",
+    "available": "Available",
+    "included": "Included"
   },
   "Legal": {
     "privacy_title": "Privacy Policy",

@@ -229,7 +229,15 @@
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
     "message": "الرسالة",
-    "send": "إرسال الرسالة"
+    "send": "إرسال الرسالة",
+    "equipment_title": "التجهيزات",
+    "prestations_title": "الخدمات والأسعار",
+    "reviews_title": "التعليقات",
+    "reviews_count": "{count} تعليقات",
+    "no_reviews": "لا توجد تعليقات بعد",
+    "location_map": "الموقع على الخريطة",
+    "available": "متوفر",
+    "included": "مشمول"
   },
   "Legal": {
     "privacy_title": "سياسة الخصوصية",
