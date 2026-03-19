@@ -44,7 +44,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
-            <Image src="/logo.png" alt={t('title')} width={56} height={56} className="h-12 sm:h-16 w-auto object-contain drop-shadow-sm" priority unoptimized />
+            <Image src="/logo.png" alt={t('title')} width={200} height={46} className="h-10 sm:h-12 w-auto object-contain" priority unoptimized />
           </Link>
 
           {/* Desktop Navigation */}
