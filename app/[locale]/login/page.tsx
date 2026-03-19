@@ -16,7 +16,7 @@ export default function LoginPage() {
         <div className="max-w-md text-center">
           {/* Logo */}
           <div className="flex items-center justify-center mb-8">
-            <Image src="/logo.png" alt={t('brand')} width={200} height={64} className="h-16 w-auto object-contain brightness-0 invert" />
+            <Image src="/logo.png" alt={t('brand')} width={200} height={64} className="h-20 w-auto object-contain brightness-0 invert" unoptimized />
           </div>
 
           {/* Decorative illustration */}
@@ -40,7 +40,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center mb-8">
-            <Image src="/logo.png" alt={t('brand')} width={160} height={52} className="h-12 w-auto object-contain" />
+            <Image src="/logo.png" alt={t('brand')} width={160} height={52} className="h-14 w-auto object-contain" unoptimized />
           </div>
 
           {/* Toggle */}

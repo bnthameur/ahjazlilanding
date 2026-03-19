@@ -73,7 +73,7 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="col-span-2 lg:col-span-1">
                         <Link href="/" className="inline-flex items-center mb-4">
-                            <Image src="/logo.png" alt="Ahjazli Qaati" width={160} height={52} className="h-12 w-auto object-contain brightness-0 invert" />
+                            <Image src="/logo.png" alt="Ahjazli Qaati" width={64} height={64} className="h-16 w-auto object-contain brightness-0 invert" unoptimized />
                         </Link>
                         <p className="text-sm text-slate-400 mb-4">
                             {t('description')}
