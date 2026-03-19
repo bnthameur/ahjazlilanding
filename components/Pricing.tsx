@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { Emoji } from 'react-apple-emojis';
+import Image from 'next/image';
 
 export default function Pricing() {
   const t = useTranslations('Pricing');
@@ -95,7 +96,7 @@ export default function Pricing() {
                 <p className="mt-2 text-sm sm:text-base text-slate-600">{t('price_subtitle')}</p>
               </div>
               <div className="rounded-2xl bg-slate-950 px-4 py-3 text-white shadow-lg">
-                <div className="text-xs uppercase tracking-[0.22em] text-primary-200">Ahjazli Qaati</div>
+                <Image src="/logo.png" alt="Ahjazli Qaati" width={100} height={32} className="h-7 w-auto object-contain brightness-0 invert opacity-80" />
                 <div className="mt-1 text-sm text-slate-200">{t('trust_message')}</div>
               </div>
             </div>

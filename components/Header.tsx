@@ -43,9 +43,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-1.5">
-            <Image src="/logo.png" alt={t('title')} width={40} height={40} className="w-9 h-9 sm:w-10 sm:h-10 object-contain" priority />
-            <span className="text-lg font-bold text-slate-900 hidden sm:inline">{t('title')}</span>
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.png" alt={t('title')} width={140} height={48} className="h-9 sm:h-11 w-auto object-contain" priority />
           </Link>
 
           {/* Desktop Navigation */}

@@ -72,9 +72,8 @@ export default function Footer() {
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-12">
                     {/* Brand */}
                     <div className="col-span-2 lg:col-span-1">
-                        <Link href="/" className="inline-flex items-center gap-2 mb-4">
-                            <Image src="/logo.png" alt="Ahjazli Qaati" width={44} height={44} className="w-11 h-11 object-contain" />
-                            <span className="text-xl font-bold text-white">{locale === 'ar' ? 'احجز لقاعتي' : 'Ahjazli Qaati'}</span>
+                        <Link href="/" className="inline-flex items-center mb-4">
+                            <Image src="/logo.png" alt="Ahjazli Qaati" width={160} height={52} className="h-12 w-auto object-contain brightness-0 invert" />
                         </Link>
                         <p className="text-sm text-slate-400 mb-4">
                             {t('description')}
