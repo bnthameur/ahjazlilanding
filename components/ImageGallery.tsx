@@ -202,7 +202,7 @@ export default function ImageGallery({ images, media, title }: ImageGalleryProps
                                     key={currentItem.url}
                                     src={currentItem.url}
                                     controls
-                                    autoPlay
+                                    playsInline
                                     className="w-full h-full object-contain"
                                     style={{ maxHeight: "calc(100vh - 160px)" }}
                                 />

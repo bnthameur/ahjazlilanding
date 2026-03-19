@@ -19,7 +19,7 @@ import {
 import VenueBookingCard from "@/components/VenueBookingCard";
 import ImageGallery, { MediaItem } from "@/components/ImageGallery";
 import MobileStickyBar from "@/components/MobileStickyBar";
-import VenueHeroCarousel from "@/components/VenueHeroCarousel";
+import VenueHeroGallery, { HeroMediaItem } from "@/components/VenueHeroGallery";
 import ShareButton from "@/components/ShareButton";
 import { getWilayaLabel } from "@/lib/wilayas";
 import Header from "@/components/Header";
@@ -141,7 +141,6 @@ export default async function VenueDetailsPage(props: {
     const t = await getTranslations("VenueDetails");
     const tCommon = await getTranslations();
 
-    // Fetch venue - try by slug first, then ID
     const { data: slugVenue } = await supabase
         .from("venues")
         .select("*, profiles(full_name, phone, email), venue_media(*)")
@@ -154,9 +153,7 @@ export default async function VenueDetailsPage(props: {
         .eq("id", id)
         .maybeSingle()).data;
 
-    if (!venue) {
-        notFound();
-    }
+    if (!venue) notFound();
 
     const wilayaLabel = getWilayaLabel(tCommon, venue.wilaya || venue.location);
     const locationLabel = [venue.city, wilayaLabel || venue.location].filter(Boolean).join(", ");
@@ -165,219 +162,205 @@ export default async function VenueDetailsPage(props: {
     const contactWhatsapp = venue.whatsapp || null;
     const categoryLabel = getCategoryLabel(venue.category, locale);
 
-    // Build rich media array
     const venueMediaRows: VenueMedia[] = (venue.venue_media as VenueMedia[]) || [];
-    const hasVenueMedia = venueMediaRows.length > 0;
-
-    const allMedia: MediaItem[] = hasVenueMedia
+    const allMedia: MediaItem[] = venueMediaRows.length > 0
         ? venueMediaRows
             .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
-            .map((m) => ({
-                url: m.url,
-                type: m.media_type,
-                thumbnail_url: m.thumbnail_url,
-                caption: m.caption,
-            }))
-        : (venue.images || []).map((url: string) => ({
-            url,
-            type: "image" as const,
-        }));
+            .map((m) => ({ url: m.url, type: m.media_type, thumbnail_url: m.thumbnail_url, caption: m.caption }))
+        : (venue.images || []).map((url: string) => ({ url, type: "image" as const }));
 
-    // Hero carousel images (images only, up to 6)
-    const heroImages = allMedia
-        .filter((m) => m.type === "image")
-        .slice(0, 6)
-        .map((m) => ({ url: m.url, caption: m.caption ?? null }));
-
-    // If no media images, use venue.images array
-    if (heroImages.length === 0 && venue.images?.length) {
-        heroImages.push(...(venue.images as string[]).slice(0, 6).map((url: string) => ({ url, caption: null })));
-    }
+    const heroMedia: HeroMediaItem[] = allMedia.map((m) => ({
+        url: m.url, type: m.type, thumbnail_url: m.thumbnail_url, caption: m.caption,
+    }));
 
     const formattedPrice = venue.price
         ? new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Number(venue.price))
         : null;
 
+    const breadcrumbHome = locale === "ar" ? "الرئيسية" : locale === "fr" ? "Accueil" : "Home";
+    const breadcrumbVenues = locale === "ar" ? "القاعات" : locale === "fr" ? "Salles" : "Venues";
+    const mediaCountLabel = locale === "ar" ? "وسائط" : locale === "fr" ? "médias" : "media";
+
+    const AMENITY_ICONS: Record<string, string> = {
+        "Parking": "🅿️", "Air Conditioning": "❄️", "Sound System": "🔊", "Lighting": "💡",
+        "Catering": "🍽️", "Wi-Fi": "📶", "Wheelchair Access": "♿", "Dance Floor": "💃",
+        "Garden": "🌿", "Pool": "🏊", "Terrace": "🏖️", "Stage": "🎭",
+    };
+
     return (
-        <div className="bg-slate-50 min-h-screen pb-24 lg:pb-0">
+        <div className="bg-white min-h-screen pb-24 lg:pb-0">
             <Header />
 
-            {/* ===== Hero Carousel ===== */}
-            <div className="relative pt-16 sm:pt-20">
-                <VenueHeroCarousel images={heroImages} title={venue.title} />
-
-                {/* Floating top bar: back + share */}
-                <div className="absolute top-16 sm:top-20 start-0 end-0 z-10 pointer-events-none">
-                    <div className="container mx-auto px-4 pt-3 flex items-center justify-between">
-                        <Link
-                            href="/salles"
-                            className="pointer-events-auto inline-flex items-center gap-2 text-white/90 hover:text-white bg-black/30 hover:bg-black/50 px-3 py-2 rounded-full transition-colors backdrop-blur-sm text-sm font-medium"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            {t("back_to_list")}
-                        </Link>
-                        <div className="pointer-events-auto">
-                            <ShareButton title={venue.title} />
-                        </div>
-                    </div>
+            {/* ===== Hero Gallery Grid (Airbnb-style) ===== */}
+            <div className="pt-16 sm:pt-20">
+                <div className="max-w-7xl mx-auto px-0 sm:px-4 lg:px-6">
+                    <VenueHeroGallery
+                        media={heroMedia}
+                        title={venue.title}
+                        allPhotosLabel={t("gallery_label")}
+                    />
                 </div>
             </div>
 
-            {/* ===== Venue Header (below hero) ===== */}
-            <div className="bg-white border-b border-slate-200 shadow-sm">
-                <div className="container mx-auto px-4 py-5 sm:py-6">
-                    <div className="grid lg:grid-cols-[2fr_1fr] gap-4 lg:gap-8 items-start">
-                        <div>
-                            {/* Location line */}
-                            <div className="flex items-center gap-1.5 text-sm text-primary-600 font-medium mb-2">
-                                <MapPin className="w-4 h-4 shrink-0" />
-                                {locationLabel || venue.location}
-                            </div>
+            {/* ===== Breadcrumb + Back ===== */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-5">
+                <nav className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 overflow-x-auto" aria-label="Breadcrumb">
+                    <Link href="/" className="hover:text-primary-600 transition-colors whitespace-nowrap">{breadcrumbHome}</Link>
+                    <span className="text-slate-300">/</span>
+                    <Link href="/salles" className="hover:text-primary-600 transition-colors whitespace-nowrap">{breadcrumbVenues}</Link>
+                    {categoryLabel && (
+                        <>
+                            <span className="text-slate-300">/</span>
+                            <span className="text-slate-400 whitespace-nowrap">{categoryLabel}</span>
+                        </>
+                    )}
+                    <span className="text-slate-300">/</span>
+                    <span className="text-slate-700 font-medium truncate">{venue.title}</span>
+                </nav>
+            </div>
 
-                            {/* Title */}
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
-                                {venue.title}
-                            </h1>
+            {/* ===== Main Layout ===== */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+                <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-10">
 
-                            {/* Rating placeholder + category */}
-                            <div className="mt-2 flex flex-wrap items-center gap-3">
-                                <div className="flex items-center gap-1">
-                                    {[1, 2, 3, 4, 5].map((s) => (
-                                        <Star
-                                            key={s}
-                                            className={`w-4 h-4 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`}
-                                        />
-                                    ))}
-                                    <span className="text-sm text-slate-500 ms-1">4.0</span>
+                    {/* ===== Left Column ===== */}
+                    <div>
+                        {/* Title & Meta */}
+                        <div className="pb-6 border-b border-slate-100">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 leading-tight">
+                                        {venue.title}
+                                    </h1>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-2">
+                                        <div className="flex items-center gap-1 text-sm text-slate-600">
+                                            <MapPin className="w-4 h-4 text-primary-500 shrink-0" />
+                                            <span>{locationLabel || venue.location}</span>
+                                        </div>
+                                        {categoryLabel && (
+                                            <span className="inline-flex items-center gap-1 rounded-full bg-primary-50 border border-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-700">
+                                                <Tag className="w-3 h-3" />
+                                                {categoryLabel}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                {categoryLabel && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
-                                        <Tag className="w-3 h-3" />
-                                        {categoryLabel}
-                                    </span>
-                                )}
+                                <div className="shrink-0 hidden sm:block">
+                                    <ShareButton title={venue.title} />
+                                </div>
                             </div>
 
-                            {/* Quick stats */}
-                            <div className="mt-4 flex flex-wrap gap-3">
+                            {/* Quick stats row */}
+                            <div className="flex flex-wrap items-center gap-4 mt-4">
                                 {venue.capacity && (
-                                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                        <Users className="w-4 h-4 text-primary-500" />
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <div className="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center">
+                                            <Users className="w-4 h-4 text-primary-600" />
+                                        </div>
                                         <div>
-                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider leading-none">{t("capacity_label")}</div>
-                                            <div className="text-sm font-bold text-slate-900 leading-tight">{venue.capacity}</div>
+                                            <div className="text-[10px] uppercase tracking-wider text-slate-400 leading-none">{t("capacity_label")}</div>
+                                            <div className="font-bold text-slate-900">{venue.capacity}</div>
                                         </div>
                                     </div>
                                 )}
                                 {formattedPrice && (
-                                    <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                                        <Coins className="w-4 h-4 text-primary-500" />
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center">
+                                            <Coins className="w-4 h-4 text-emerald-600" />
+                                        </div>
                                         <div>
-                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider leading-none">{t("price_label")}</div>
-                                            <div className="text-sm font-bold text-slate-900 leading-tight">{formattedPrice} DZD</div>
+                                            <div className="text-[10px] uppercase tracking-wider text-slate-400 leading-none">{t("price_label")}</div>
+                                            <div className="font-bold text-slate-900">{formattedPrice} DZD</div>
                                         </div>
                                     </div>
                                 )}
-                            </div>
-
-                            {/* CTA buttons (mobile only - desktop is in sidebar) */}
-                            <div className="lg:hidden mt-5 flex gap-3">
-                                <a
-                                    href={contactPhone ? `tel:${contactPhone}` : "#"}
-                                    className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-primary-600 text-primary-600 font-semibold py-3 text-sm transition hover:bg-primary-50 ${!contactPhone ? "opacity-40 pointer-events-none" : ""}`}
-                                >
-                                    <Phone className="w-4 h-4" />
-                                    {t("call_now")}
-                                </a>
-                                {contactWhatsapp && (
-                                    <a
-                                        href={`https://wa.me/${contactWhatsapp}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 text-sm transition"
-                                    >
-                                        <MessageCircle className="w-4 h-4" />
-                                        {t("whatsapp")}
-                                    </a>
-                                )}
+                                <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star key={s} className={`w-3.5 h-3.5 ${s <= 4 ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`} />
+                                    ))}
+                                    <span className="text-xs text-slate-500 ms-1">4.0</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Desktop: sticky sidebar anchor - rendered later in the grid below */}
-                        <div className="hidden lg:block" />
-                    </div>
-                </div>
-            </div>
+                        {/* Mobile CTA row */}
+                        <div className="lg:hidden flex gap-3 py-4 border-b border-slate-100">
+                            {contactPhone && (
+                                <a href={`tel:${contactPhone}`}
+                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary-500 text-primary-600 font-semibold py-3 text-sm hover:bg-primary-50 transition">
+                                    <Phone className="w-4 h-4" /> {t("call_now")}
+                                </a>
+                            )}
+                            {contactWhatsapp && (
+                                <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer"
+                                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 text-sm transition">
+                                    <MessageCircle className="w-4 h-4" /> {t("whatsapp")}
+                                </a>
+                            )}
+                        </div>
 
-            {/* ===== Main content + sidebar ===== */}
-            <div className="container mx-auto px-4 mt-5 sm:mt-6 relative z-10">
-                <div className="grid lg:grid-cols-[2fr_1fr] gap-6 sm:gap-8">
-                    {/* Left column */}
-                    <div className="space-y-5 sm:space-y-6">
-                        {/* About */}
-                        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
+                        {/* Description */}
+                        <section className="py-6 border-b border-slate-100">
                             <div className="flex items-center gap-2 mb-3">
-                                <Sparkles className="w-5 h-5 text-primary-600" />
+                                <Sparkles className="w-5 h-5 text-primary-500" />
                                 <h2 className="text-lg font-bold text-slate-900">{t("description_label")}</h2>
                             </div>
-                            <p className="text-slate-600 leading-relaxed text-sm sm:text-base">{venue.description}</p>
-                        </div>
-
-                        {/* Photo & Video Gallery */}
-                        {allMedia.length > 0 && (
-                            <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-lg font-bold text-slate-900">{t("gallery_label")}</h3>
-                                    <span className="text-xs text-slate-500">{allMedia.length} وسائط</span>
-                                </div>
-                                <ImageGallery media={allMedia} title={venue.title} />
-                            </div>
-                        )}
+                            <p className="text-slate-600 leading-relaxed text-sm sm:text-base whitespace-pre-line">
+                                {venue.description}
+                            </p>
+                        </section>
 
                         {/* Amenities */}
-                        {venue.amenities && venue.amenities.length > 0 && (
-                            <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">{t("features_label")}</h3>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {venue.amenities && (venue.amenities as string[]).length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <h2 className="text-lg font-bold text-slate-900 mb-4">{t("features_label")}</h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {(venue.amenities as string[]).map((amenity: string) => (
-                                        <div
-                                            key={amenity}
-                                            className="flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-100 px-3 py-2.5 text-sm text-slate-700"
-                                        >
-                                            <span className="h-1.5 w-1.5 rounded-full bg-primary-400 shrink-0" />
-                                            {amenity}
+                                        <div key={amenity}
+                                            className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-3 text-sm text-slate-700 hover:border-primary-200 hover:bg-primary-50/50 transition-colors">
+                                            <span className="text-base">{AMENITY_ICONS[amenity] || "✅"}</span>
+                                            <span className="font-medium">{amenity}</span>
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </section>
                         )}
 
-                        {/* Location card */}
-                        <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-7 shadow-sm">
-                            <h3 className="text-lg font-bold text-slate-900 mb-3">{t("location_label")}</h3>
-                            <div className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
-                                <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
+                        {/* Full Gallery */}
+                        {allMedia.length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-lg font-bold text-slate-900">{t("gallery_label")}</h2>
+                                    <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{allMedia.length} {mediaCountLabel}</span>
+                                </div>
+                                <ImageGallery media={allMedia} title={venue.title} />
+                            </section>
+                        )}
+
+                        {/* Location */}
+                        <section className="py-6 border-b border-slate-100">
+                            <h2 className="text-lg font-bold text-slate-900 mb-3">{t("location_label")}</h2>
+                            <div className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-4 py-3.5">
+                                <div className="h-11 w-11 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
                                     <MapPin className="w-5 h-5 text-primary-600" />
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-slate-900 text-sm">{locationLabel || venue.location}</div>
+                                    <div className="font-semibold text-slate-900">{locationLabel || venue.location}</div>
                                     {venue.wilaya && (
                                         <div className="text-xs text-slate-500 mt-0.5">{wilayaLabel || venue.wilaya}</div>
                                     )}
                                 </div>
                             </div>
-                        </div>
+                        </section>
 
-                        {/* Contact info - non-desktop */}
+                        {/* Contact (mobile) */}
                         {(contactPhone || contactWhatsapp || contactEmail) && (
-                            <div className="lg:hidden bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                                <h4 className="text-base font-bold text-slate-900 mb-4">{t("contact_info")}</h4>
-                                <div className="space-y-3">
+                            <section className="lg:hidden py-6">
+                                <h3 className="text-base font-bold text-slate-900 mb-4">{t("contact_info")}</h3>
+                                <div className="space-y-2.5">
                                     {contactPhone && (
-                                        <a
-                                            href={`tel:${contactPhone}`}
-                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-primary-300 hover:shadow-sm transition"
-                                        >
+                                        <a href={`tel:${contactPhone}`}
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-primary-300 hover:shadow-sm transition">
                                             <div className="h-10 w-10 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
                                                 <Phone className="w-5 h-5 text-primary-600" />
                                             </div>
@@ -388,12 +371,8 @@ export default async function VenueDetailsPage(props: {
                                         </a>
                                     )}
                                     {contactWhatsapp && (
-                                        <a
-                                            href={`https://wa.me/${contactWhatsapp}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-emerald-300 hover:shadow-sm transition"
-                                        >
+                                        <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer"
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-emerald-300 hover:shadow-sm transition">
                                             <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
                                                 <MessageCircle className="w-5 h-5 text-emerald-600" />
                                             </div>
@@ -404,12 +383,10 @@ export default async function VenueDetailsPage(props: {
                                         </a>
                                     )}
                                     {contactEmail && (
-                                        <a
-                                            href={`mailto:${contactEmail}`}
-                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-slate-300 hover:shadow-sm transition"
-                                        >
+                                        <a href={`mailto:${contactEmail}`}
+                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-slate-300 hover:shadow-sm transition">
                                             <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                                <Mail className="w-5 h-5 text-slate-700" />
+                                                <Mail className="w-5 h-5 text-slate-600" />
                                             </div>
                                             <div>
                                                 <div className="text-xs text-slate-500">{t("email_owner")}</div>
@@ -418,78 +395,72 @@ export default async function VenueDetailsPage(props: {
                                         </a>
                                     )}
                                 </div>
-                            </div>
+                            </section>
                         )}
                     </div>
 
-                    {/* Right sidebar - desktop only */}
+                    {/* ===== Right Sidebar (Desktop) ===== */}
                     <div className="hidden lg:block">
-                        <div className="sticky top-6 space-y-4">
-                            <VenueBookingCard
-                                venueId={venue.id}
-                                venueTitle={venue.title}
-                                city={venue.city}
-                                wilaya={venue.wilaya}
-                                location={venue.location}
-                                capacity={venue.capacity}
-                                price={venue.price}
-                                phone={contactPhone}
-                                whatsapp={contactWhatsapp}
-                                contactEmail={contactEmail}
-                            />
-
-                            {/* Contact card */}
-                            {(contactPhone || contactWhatsapp || contactEmail) && (
-                                <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                                    <h4 className="text-sm font-bold text-slate-900 mb-4">{t("contact_info")}</h4>
-                                    <div className="space-y-2.5">
-                                        {contactPhone && (
-                                            <a
-                                                href={`tel:${contactPhone}`}
-                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-primary-200 hover:bg-primary-50 transition"
-                                            >
-                                                <Phone className="w-4 h-4 text-primary-600 shrink-0" />
-                                                <div>
-                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("call_now")}</div>
-                                                    <div className="text-sm font-semibold text-slate-900">{contactPhone}</div>
-                                                </div>
-                                            </a>
-                                        )}
-                                        {contactWhatsapp && (
-                                            <a
-                                                href={`https://wa.me/${contactWhatsapp}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-emerald-200 hover:bg-emerald-50 transition"
-                                            >
-                                                <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                                                <div>
-                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("whatsapp")}</div>
-                                                    <div className="text-sm font-semibold text-slate-900">{contactWhatsapp}</div>
-                                                </div>
-                                            </a>
-                                        )}
-                                        {contactEmail && (
-                                            <a
-                                                href={`mailto:${contactEmail}`}
-                                                className="flex items-center gap-3 rounded-xl border border-slate-100 p-3 hover:border-slate-200 hover:bg-slate-50 transition"
-                                            >
-                                                <Mail className="w-4 h-4 text-slate-600 shrink-0" />
-                                                <div>
-                                                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">{t("email_owner")}</div>
-                                                    <div className="text-sm font-semibold text-slate-900 truncate max-w-[180px]">{contactEmail}</div>
-                                                </div>
-                                            </a>
-                                        )}
+                        <div className="sticky top-24 space-y-4">
+                            {/* Price + Booking Card */}
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-lg shadow-slate-200/50 overflow-hidden">
+                                {/* Price header */}
+                                {formattedPrice && (
+                                    <div className="bg-gradient-to-r from-primary-50 to-primary-100/50 px-6 py-4 border-b border-primary-100">
+                                        <div className="text-2xl font-bold text-slate-900">
+                                            {formattedPrice} <span className="text-base font-medium text-slate-500">DZD</span>
+                                        </div>
+                                        <div className="text-xs text-slate-500 mt-0.5">{t("price_label")}</div>
                                     </div>
+                                )}
+                                <div className="p-5 space-y-3">
+                                    {contactPhone && (
+                                        <a href={`tel:${contactPhone}`}
+                                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 text-sm transition-colors shadow-sm">
+                                            <Phone className="w-4 h-4" /> {t("call_now")}
+                                        </a>
+                                    )}
+                                    {contactWhatsapp && (
+                                        <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer"
+                                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 text-sm transition-colors shadow-sm">
+                                            <MessageCircle className="w-4 h-4" /> {t("whatsapp")}
+                                        </a>
+                                    )}
+                                    {contactEmail && (
+                                        <a href={`mailto:${contactEmail}`}
+                                            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold py-3 text-sm transition-colors">
+                                            <Mail className="w-4 h-4" /> {t("email_owner")}
+                                        </a>
+                                    )}
                                 </div>
-                            )}
+                            </div>
+
+                            {/* Quick info sidebar card */}
+                            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                                <h4 className="text-sm font-bold text-slate-900 mb-3">{t("contact_info")}</h4>
+                                <div className="space-y-3 text-sm">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-500">{t("capacity_label")}</span>
+                                        <span className="font-semibold text-slate-900">{venue.capacity || "—"}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-500">{t("location_label")}</span>
+                                        <span className="font-semibold text-slate-900 truncate ms-4">{locationLabel || "—"}</span>
+                                    </div>
+                                    {categoryLabel && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-slate-500">Type</span>
+                                            <span className="font-semibold text-slate-900">{categoryLabel}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* ===== Mobile Sticky Booking Bar ===== */}
+            {/* Mobile Sticky Bar */}
             <MobileStickyBar
                 venueId={venue.id}
                 venueTitle={venue.title}
@@ -505,81 +476,30 @@ export default async function VenueDetailsPage(props: {
                 priceLabel={t("price_label")}
             />
 
-            {/* JSON-LD Structured Data */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "EventVenue",
-                        name: venue.title,
-                        description: venue.description || "",
-                        url: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}`,
-                        image: heroImages.map((img) => img.url),
-                        address: {
-                            "@type": "PostalAddress",
-                            addressLocality: venue.city || "",
-                            addressRegion: venue.wilaya || venue.location || "",
-                            addressCountry: "DZ",
-                        },
-                        geo: venue.latitude && venue.longitude ? {
-                            "@type": "GeoCoordinates",
-                            latitude: venue.latitude,
-                            longitude: venue.longitude,
-                        } : undefined,
-                        maximumAttendeeCapacity: venue.capacity || undefined,
-                        ...(venue.price ? {
-                            priceRange: `${venue.price} DZD`,
-                            offers: {
-                                "@type": "Offer",
-                                price: venue.price,
-                                priceCurrency: "DZD",
-                                availability: "https://schema.org/InStock",
-                            },
-                        } : {}),
-                        telephone: contactPhone || undefined,
-                        email: contactEmail || undefined,
-                        ...(venue.amenities?.length ? {
-                            amenityFeature: (venue.amenities as string[]).map((a: string) => ({
-                                "@type": "LocationFeatureSpecification",
-                                name: a,
-                                value: true,
-                            })),
-                        } : {}),
-                    }),
-                }}
-            />
-
-            {/* BreadcrumbList JSON-LD */}
-            <script
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{
-                    __html: JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "BreadcrumbList",
-                        itemListElement: [
-                            {
-                                "@type": "ListItem",
-                                position: 1,
-                                name: locale === "ar" ? "الرئيسية" : locale === "fr" ? "Accueil" : "Home",
-                                item: locale === "ar" ? SITE_URL : `${SITE_URL}/${locale}`,
-                            },
-                            {
-                                "@type": "ListItem",
-                                position: 2,
-                                name: locale === "ar" ? "القاعات" : locale === "fr" ? "Salles" : "Venues",
-                                item: locale === "ar" ? `${SITE_URL}/salles` : `${SITE_URL}/${locale}/salles`,
-                            },
-                            {
-                                "@type": "ListItem",
-                                position: 3,
-                                name: venue.title,
-                                item: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}`,
-                            },
-                        ],
-                    }),
-                }}
-            />
+            {/* JSON-LD */}
+            <script type="application/ld+json" dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    "@context": "https://schema.org", "@type": "EventVenue",
+                    name: venue.title, description: venue.description || "",
+                    url: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}`,
+                    image: allMedia.filter(m => m.type === "image").map(m => m.url),
+                    address: { "@type": "PostalAddress", addressLocality: venue.city || "", addressRegion: venue.wilaya || venue.location || "", addressCountry: "DZ" },
+                    maximumAttendeeCapacity: venue.capacity || undefined,
+                    ...(venue.price ? { priceRange: `${venue.price} DZD`, offers: { "@type": "Offer", price: venue.price, priceCurrency: "DZD", availability: "https://schema.org/InStock" } } : {}),
+                    telephone: contactPhone || undefined, email: contactEmail || undefined,
+                    ...(venue.amenities?.length ? { amenityFeature: (venue.amenities as string[]).map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })) } : {}),
+                }),
+            }} />
+            <script type="application/ld+json" dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                    "@context": "https://schema.org", "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: breadcrumbHome, item: locale === "ar" ? SITE_URL : `${SITE_URL}/${locale}` },
+                        { "@type": "ListItem", position: 2, name: breadcrumbVenues, item: locale === "ar" ? `${SITE_URL}/salles` : `${SITE_URL}/${locale}/salles` },
+                        { "@type": "ListItem", position: 3, name: venue.title, item: `${SITE_URL}/${locale}/salles/${venue.slug || venue.id}` },
+                    ],
+                }),
+            }} />
         </div>
     );
 }
