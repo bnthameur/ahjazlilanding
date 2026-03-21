@@ -211,24 +211,32 @@ export default async function VenueDetailsPage(props: {
     const breadcrumbVenues = locale === "ar" ? "القاعات" : locale === "fr" ? "Salles" : "Venues";
     const mediaCountLabel = locale === "ar" ? "وسائط" : locale === "fr" ? "médias" : "media";
 
-    const AMENITY_ICONS: Record<string, LucideIcon> = {
-        "Parking": Car, "Air Conditioning": Snowflake, "Sound System": Volume2, "Lighting": Lightbulb,
-        "Catering": UtensilsCrossed, "Wi-Fi": Wifi, "Wheelchair Access": Accessibility, "Dance Floor": Music,
-        "Garden": Trees, "Pool": Waves, "Terrace": Sun, "Stage": Theater,
-    };
-    const AMENITY_TRANSLATIONS: Record<string, Record<string, string>> = {
-        "Parking": { ar: "موقف سيارات", fr: "Parking", en: "Parking" },
-        "Air Conditioning": { ar: "تكييف", fr: "Climatisation", en: "Air Conditioning" },
-        "Sound System": { ar: "نظام صوت", fr: "Sonorisation", en: "Sound System" },
-        "Lighting": { ar: "إضاءة", fr: "Éclairage", en: "Lighting" },
-        "Catering": { ar: "خدمة طعام", fr: "Traiteur", en: "Catering" },
-        "Wi-Fi": { ar: "واي فاي", fr: "Wi-Fi", en: "Wi-Fi" },
-        "Wheelchair Access": { ar: "وصول ذوي الاحتياجات", fr: "Accès PMR", en: "Wheelchair Access" },
-        "Dance Floor": { ar: "حلبة رقص", fr: "Piste de danse", en: "Dance Floor" },
-        "Garden": { ar: "حديقة", fr: "Jardin", en: "Garden" },
-        "Pool": { ar: "مسبح", fr: "Piscine", en: "Pool" },
-        "Terrace": { ar: "شرفة", fr: "Terrasse", en: "Terrace" },
-        "Stage": { ar: "منصة", fr: "Scène", en: "Stage" },
+    // Amenity data — supports both old format ("Air Conditioning") and new format ("air_conditioning")
+    const AMENITY_DATA: Record<string, { icon: LucideIcon; ar: string; fr: string; en: string }> = {
+        "Parking":            { icon: Car,              ar: "موقف سيارات",           fr: "Parking",          en: "Parking" },
+        "parking":            { icon: Car,              ar: "موقف سيارات",           fr: "Parking",          en: "Parking" },
+        "Air Conditioning":   { icon: Snowflake,        ar: "تكييف",                fr: "Climatisation",    en: "Air Conditioning" },
+        "air_conditioning":   { icon: Snowflake,        ar: "تكييف",                fr: "Climatisation",    en: "Air Conditioning" },
+        "Sound System":       { icon: Volume2,          ar: "نظام صوت",             fr: "Sonorisation",     en: "Sound System" },
+        "sound_system":       { icon: Volume2,          ar: "نظام صوت",             fr: "Sonorisation",     en: "Sound System" },
+        "Lighting":           { icon: Lightbulb,        ar: "إضاءة",                fr: "Éclairage",        en: "Lighting" },
+        "lighting":           { icon: Lightbulb,        ar: "إضاءة",                fr: "Éclairage",        en: "Lighting" },
+        "Catering":           { icon: UtensilsCrossed,  ar: "خدمة طعام",            fr: "Traiteur",         en: "Catering" },
+        "catering":           { icon: UtensilsCrossed,  ar: "خدمة طعام",            fr: "Traiteur",         en: "Catering" },
+        "Wi-Fi":              { icon: Wifi,             ar: "واي فاي",              fr: "Wi-Fi",            en: "Wi-Fi" },
+        "wifi":               { icon: Wifi,             ar: "واي فاي",              fr: "Wi-Fi",            en: "Wi-Fi" },
+        "Wheelchair Access":  { icon: Accessibility,    ar: "وصول ذوي الاحتياجات",  fr: "Accès PMR",        en: "Wheelchair Access" },
+        "wheelchair_access":  { icon: Accessibility,    ar: "وصول ذوي الاحتياجات",  fr: "Accès PMR",        en: "Wheelchair Access" },
+        "Dance Floor":        { icon: Music,            ar: "حلبة رقص",             fr: "Piste de danse",   en: "Dance Floor" },
+        "dance_floor":        { icon: Music,            ar: "حلبة رقص",             fr: "Piste de danse",   en: "Dance Floor" },
+        "Garden":             { icon: Trees,            ar: "حديقة",                fr: "Jardin",           en: "Garden" },
+        "garden":             { icon: Trees,            ar: "حديقة",                fr: "Jardin",           en: "Garden" },
+        "Pool":               { icon: Waves,            ar: "مسبح",                 fr: "Piscine",          en: "Pool" },
+        "pool":               { icon: Waves,            ar: "مسبح",                 fr: "Piscine",          en: "Pool" },
+        "Terrace":            { icon: Sun,              ar: "شرفة",                 fr: "Terrasse",         en: "Terrace" },
+        "terrace":            { icon: Sun,              ar: "شرفة",                 fr: "Terrasse",         en: "Terrace" },
+        "Stage":              { icon: Theater,          ar: "منصة",                 fr: "Scène",            en: "Stage" },
+        "stage":              { icon: Theater,          ar: "منصة",                 fr: "Scène",            en: "Stage" },
     };
 
     return (
@@ -407,8 +415,9 @@ export default async function VenueDetailsPage(props: {
                                 <h2 className="text-lg font-bold text-slate-900 mb-4">{t("features_label")}</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {(venue.amenities as string[]).map((amenity: string) => {
-                                        const IconComp = AMENITY_ICONS[amenity];
-                                        const label = AMENITY_TRANSLATIONS[amenity]?.[locale] || amenity;
+                                        const data = AMENITY_DATA[amenity];
+                                        const IconComp = data?.icon;
+                                        const label = data?.[locale as 'ar' | 'fr' | 'en'] || amenity;
                                         return (
                                             <div key={amenity}
                                                 className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-3 text-sm text-slate-700 hover:border-primary-200 hover:bg-primary-50/50 transition-colors">

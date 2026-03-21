@@ -22,8 +22,7 @@ export default function VenueHeroGallery({ media, title, allPhotosLabel = 'View 
     const [activeIndex, setActiveIndex] = useState(0);
     const [scale, setScale] = useState(1);
 
-    const images = media.filter(m => m.type === 'image');
-    const heroItems = images.slice(0, 5);
+    const heroItems = media.slice(0, 5);
     const totalCount = media.length;
 
     const openLightbox = (index: number) => {
@@ -42,6 +41,32 @@ export default function VenueHeroGallery({ media, title, allPhotosLabel = 'View 
     const goTo = (idx: number) => {
         setActiveIndex((idx + media.length) % media.length);
         setScale(1);
+    };
+
+    // Renders the visual content of a grid cell (image or video thumbnail + play badge)
+    const renderGridMedia = (item: HeroMediaItem, alt: string, sizes: string, priority?: boolean) => {
+        if (item.type === 'video') {
+            return (
+                <>
+                    {item.thumbnail_url ? (
+                        <Image src={item.thumbnail_url} alt={alt} fill className="object-cover" sizes={sizes} priority={priority} />
+                    ) : (
+                        <div className="absolute inset-0 bg-slate-800" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow-lg">
+                            <Play className="w-5 h-5 text-slate-900 ms-0.5" fill="currentColor" />
+                        </div>
+                    </div>
+                </>
+            );
+        }
+        return (
+            <>
+                <Image src={item.url} alt={alt} fill className="object-cover" sizes={sizes} priority={priority} />
+                <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+            </>
+        );
     };
 
     // Keyboard navigation
@@ -68,58 +93,50 @@ export default function VenueHeroGallery({ media, title, allPhotosLabel = 'View 
                         <Camera className="w-16 h-16 text-primary-300" />
                     </div>
                 ) : heroItems.length === 1 ? (
-                    /* Single image - full width */
+                    /* Single item - full width */
                     <button onClick={() => openLightbox(0)} className="w-full aspect-[16/7] relative overflow-hidden cursor-pointer">
-                        <Image src={heroItems[0].url} alt={title} fill className="object-cover" sizes="100vw" priority />
-                        <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                        {renderGridMedia(heroItems[0], title, '100vw', true)}
                     </button>
                 ) : heroItems.length <= 3 ? (
-                    /* 2-3 images: 1 large left + stack right */
+                    /* 2-3 items: 1 large left + stack right */
                     <div className="grid grid-cols-2 gap-1 sm:gap-1.5 aspect-[16/7]">
                         <button onClick={() => openLightbox(0)} className="relative overflow-hidden cursor-pointer">
-                            <Image src={heroItems[0].url} alt={title} fill className="object-cover" sizes="50vw" priority />
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                            {renderGridMedia(heroItems[0], title, '50vw', true)}
                         </button>
                         <div className={`grid ${heroItems.length === 2 ? 'grid-rows-1' : 'grid-rows-2'} gap-1 sm:gap-1.5`}>
                             {heroItems.slice(1).map((item, i) => (
                                 <button key={i} onClick={() => openLightbox(i + 1)} className="relative overflow-hidden cursor-pointer">
-                                    <Image src={item.url} alt={`${title} ${i + 2}`} fill className="object-cover" sizes="50vw" />
-                                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                                    {renderGridMedia(item, `${title} ${i + 2}`, '50vw')}
                                 </button>
                             ))}
                         </div>
                     </div>
                 ) : (
-                    /* 4-5 images: Airbnb-style grid */
+                    /* 4-5 items: Airbnb-style grid */
                     <div className="grid grid-cols-4 grid-rows-2 gap-1 sm:gap-1.5 aspect-[16/7]">
-                        {/* Main large image */}
+                        {/* Main large item */}
                         <button
                             onClick={() => openLightbox(0)}
                             className="col-span-2 row-span-2 relative overflow-hidden cursor-pointer rounded-s-xl sm:rounded-s-2xl"
                         >
-                            <Image src={heroItems[0].url} alt={title} fill className="object-cover" sizes="50vw" priority />
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                            {renderGridMedia(heroItems[0], title, '50vw', true)}
                         </button>
                         {/* Top right */}
                         <button onClick={() => openLightbox(1)} className="relative overflow-hidden cursor-pointer">
-                            <Image src={heroItems[1].url} alt={`${title} 2`} fill className="object-cover" sizes="25vw" />
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                            {renderGridMedia(heroItems[1], `${title} 2`, '25vw')}
                         </button>
                         {/* Top far right */}
                         <button onClick={() => openLightbox(2)} className="relative overflow-hidden cursor-pointer rounded-e-xl sm:rounded-e-2xl rounded-ee-none">
-                            <Image src={heroItems[2].url} alt={`${title} 3`} fill className="object-cover" sizes="25vw" />
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                            {renderGridMedia(heroItems[2], `${title} 3`, '25vw')}
                         </button>
                         {/* Bottom right */}
                         <button onClick={() => openLightbox(3)} className="relative overflow-hidden cursor-pointer">
-                            <Image src={heroItems[3].url} alt={`${title} 4`} fill className="object-cover" sizes="25vw" />
-                            <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                            {renderGridMedia(heroItems[3], `${title} 4`, '25vw')}
                         </button>
                         {/* Bottom far right */}
                         {heroItems[4] ? (
                             <button onClick={() => openLightbox(4)} className="relative overflow-hidden cursor-pointer rounded-ee-xl sm:rounded-ee-2xl">
-                                <Image src={heroItems[4].url} alt={`${title} 5`} fill className="object-cover" sizes="25vw" />
-                                <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors" />
+                                {renderGridMedia(heroItems[4], `${title} 5`, '25vw')}
                                 {totalCount > 5 && (
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                         <span className="text-white font-bold text-lg">+{totalCount - 5}</span>
