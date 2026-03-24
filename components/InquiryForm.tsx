@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
-import { useParams } from "next/navigation";
 
 interface InquiryFormProps {
     venueId: string;
@@ -36,6 +34,8 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
         setSuccess(false);
 
         const formData = new FormData(e.currentTarget);
+
+        // Honeypot anti-spam check
         const honeypot = formData.get("company");
         if (honeypot) {
             setLoading(false);
@@ -43,38 +43,50 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
             return;
         }
 
+        // Client-side rate limiting
         if (cooldownUntil && cooldownUntil > Date.now()) {
             const seconds = Math.ceil((cooldownUntil - Date.now()) / 1000);
             setLoading(false);
             setError(t('inquiry_rate_limit', { seconds }));
             return;
         }
-        const data = {
+
+        const guestsRaw = formData.get("guests") as string | null;
+
+        const payload = {
             venue_id: venueId,
-            customer_name: formData.get("name"),
-            customer_email: formData.get("email"),
-            customer_phone: formData.get("phone"),
-            message: formData.get("message"),
-            event_date: formData.get("date") || null,
-            guest_count: formData.get("guests") ? parseInt(formData.get("guests") as string) : null,
-            status: "new",
-            event_type: "inquiry", // Default type
+            customer_name: (formData.get("name") as string | null)?.trim() ?? "",
+            customer_email: (formData.get("email") as string | null)?.trim() ?? "",
+            customer_phone: (formData.get("phone") as string | null)?.trim() ?? "",
+            message: (formData.get("message") as string | null)?.trim() ?? "",
+            event_date: (formData.get("date") as string | null) || null,
+            guest_count: guestsRaw ? parseInt(guestsRaw, 10) : null,
+            event_type: "inquiry",
         };
 
-        const supabase = createClient();
-        const { error: insertError } = await supabase.from("inquiries").insert(data);
+        try {
+            const response = await fetch("/api/inquiries", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
 
-        if (insertError) {
-            console.error(insertError);
+            const result = await response.json();
+
+            if (!response.ok) {
+                setError(result.error ?? t('inquiry_error'));
+            } else {
+                setSuccess(true);
+                (e.target as HTMLFormElement).reset();
+                const nextCooldown = Date.now() + 60_000;
+                localStorage.setItem(`inquiryCooldown:${venueId}`, String(nextCooldown));
+                setCooldownUntil(nextCooldown);
+            }
+        } catch {
             setError(t('inquiry_error'));
-        } else {
-            setSuccess(true);
-            (e.target as HTMLFormElement).reset();
-            const nextCooldown = Date.now() + 60_000;
-            localStorage.setItem(`inquiryCooldown:${venueId}`, String(nextCooldown));
-            setCooldownUntil(nextCooldown);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }
 
     const containerClass = compact
@@ -85,12 +97,12 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
         <div className={containerClass}>
             <h3 className="text-xl font-bold text-slate-900 mb-2">{t('send_inquiry')}</h3>
             <p className="text-slate-500 mb-6 text-sm">
-                Interested in <span className="font-semibold text-slate-900">{venueTitle}</span>? Send a message to the owner.
+                {t('inquiry_desc')}
             </p>
 
             {success ? (
                 <div className="bg-green-50 text-green-700 p-4 rounded-lg flex items-center gap-2 mb-6">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     {t('inquiry_sent')}
@@ -104,28 +116,37 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
             ) : null}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Honeypot field - hidden from real users */}
                 <input
                     type="text"
                     name="company"
                     tabIndex={-1}
                     autoComplete="off"
                     className="hidden"
+                    aria-hidden="true"
                 />
+
                 <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">{t('name')}</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
+                        {t('name')} <span className="text-red-500">*</span>
+                    </label>
                     <input
                         type="text"
                         id="name"
                         name="name"
                         required
+                        minLength={2}
+                        maxLength={100}
                         className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
-                        placeholder="Your full name"
+                        placeholder={t('name')}
                     />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">{t('phone')}</label>
+                        <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1">
+                            {t('phone')} <span className="text-red-500">*</span>
+                        </label>
                         <input
                             type="tel"
                             id="phone"
@@ -136,12 +157,13 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
                         />
                     </div>
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">{t('email')}</label>
+                        <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+                            {t('email')}
+                        </label>
                         <input
                             type="email"
                             id="email"
                             name="email"
-                            required
                             className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                             placeholder="you@example.com"
                         />
@@ -150,7 +172,9 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label htmlFor="date" className="block text-sm font-medium text-slate-700 mb-1">Event Date (Optional)</label>
+                        <label htmlFor="date" className="block text-sm font-medium text-slate-700 mb-1">
+                            {t('event_date')} <span className="text-slate-400 font-normal">({t('optional')})</span>
+                        </label>
                         <input
                             type="date"
                             id="date"
@@ -159,11 +183,15 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
                         />
                     </div>
                     <div>
-                        <label htmlFor="guests" className="block text-sm font-medium text-slate-700 mb-1">Guest Count (Optional)</label>
+                        <label htmlFor="guests" className="block text-sm font-medium text-slate-700 mb-1">
+                            {t('guest_count')} <span className="text-slate-400 font-normal">({t('optional')})</span>
+                        </label>
                         <input
                             type="number"
                             id="guests"
                             name="guests"
+                            min={1}
+                            max={10000}
                             className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
                             placeholder="e.g. 200"
                         />
@@ -171,15 +199,18 @@ export default function InquiryForm({ venueId, venueTitle, compact }: InquiryFor
                 </div>
 
                 <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-1">{t('message')}</label>
+                    <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-1">
+                        {t('message')} <span className="text-red-500">*</span>
+                    </label>
                     <textarea
                         id="message"
                         name="message"
                         required
+                        minLength={10}
                         rows={4}
                         className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all resize-none"
-                        placeholder="Tell us about your event..."
-                    ></textarea>
+                        placeholder={t('message')}
+                    />
                 </div>
 
                 <button
