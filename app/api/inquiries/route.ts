@@ -23,6 +23,49 @@ function isNonEmptyString(value: unknown, maxLen = 2000): value is string {
     return typeof value === "string" && value.trim().length > 0 && value.length <= maxLen;
 }
 
+// ---------------------------------------------------------------------------
+// In-memory IP rate limiter
+// Key: `${ip}:${venue_id}` → timestamp of last submission
+// ---------------------------------------------------------------------------
+interface RateLimitEntry {
+    timestamp: number;
+}
+
+const ipRateLimitMap = new Map<string, RateLimitEntry>();
+
+// Clean stale entries every 10 minutes to avoid unbounded memory growth
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
+setInterval(() => {
+    const now = Date.now();
+    Array.from(ipRateLimitMap.entries()).forEach(([key, entry]) => {
+        if (now - entry.timestamp > RATE_LIMIT_WINDOW_MS) {
+            ipRateLimitMap.delete(key);
+        }
+    });
+}, CLEANUP_INTERVAL_MS);
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function extractClientIp(request: Request): string {
+    const forwarded = request.headers.get("x-forwarded-for");
+    if (forwarded) {
+        // x-forwarded-for may contain a comma-separated list; take the first
+        return forwarded.split(",")[0].trim();
+    }
+    const realIp = request.headers.get("x-real-ip");
+    if (realIp) return realIp.trim();
+    // Fallback – unknown IP, still use a consistent key
+    return "unknown";
+}
+
+// ---------------------------------------------------------------------------
+// Route handler
+// ---------------------------------------------------------------------------
+
 export async function POST(request: Request) {
     try {
         const body: InquiryPayload = await request.json();
@@ -73,6 +116,22 @@ export async function POST(request: Request) {
         const message = body.message.trim();
         const venueId = body.venue_id;
 
+        // --- IP-based rate limiting (same IP + same venue within 5 minutes) ---
+        const clientIp = extractClientIp(request);
+        const rateLimitKey = `${clientIp}:${venueId}`;
+        const now = Date.now();
+        const lastEntry = ipRateLimitMap.get(rateLimitKey);
+
+        if (lastEntry && now - lastEntry.timestamp < RATE_LIMIT_WINDOW_MS) {
+            const remainingSec = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastEntry.timestamp)) / 1000);
+            return NextResponse.json(
+                {
+                    error: `You've already sent an inquiry to this venue recently. Please wait ${remainingSec} seconds before trying again.`,
+                },
+                { status: 429 }
+            );
+        }
+
         const cookieStore = await cookies();
         const supabase = createClient(cookieStore);
 
@@ -91,6 +150,30 @@ export async function POST(request: Request) {
             return NextResponse.json(
                 { error: "This venue is not accepting inquiries at this time" },
                 { status: 403 }
+            );
+        }
+
+        // --- DB duplicate check: same phone + same venue within 24 hours ---
+        const cutoff24h = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+
+        const { data: existingInquiry, error: dupCheckError } = await supabase
+            .from("inquiries")
+            .select("id")
+            .eq("venue_id", venueId)
+            .gte("created_at", cutoff24h)
+            .or(`customer_phone.eq.${customerPhone},phone.eq.${customerPhone}`)
+            .limit(1)
+            .maybeSingle();
+
+        if (dupCheckError) {
+            // Log but don't block – a check failure should not prevent submission
+            console.error("[POST /api/inquiries] Duplicate check error:", dupCheckError.message);
+        } else if (existingInquiry) {
+            return NextResponse.json(
+                {
+                    error: "You've already submitted an inquiry to this venue. The owner will get back to you shortly.",
+                },
+                { status: 409 }
             );
         }
 
@@ -117,6 +200,9 @@ export async function POST(request: Request) {
                 { status: 500 }
             );
         }
+
+        // Record the successful submission in the rate limiter
+        ipRateLimitMap.set(rateLimitKey, { timestamp: now });
 
         return NextResponse.json(
             { success: true, message: "Inquiry submitted successfully" },

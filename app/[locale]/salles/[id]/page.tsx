@@ -157,6 +157,7 @@ export default async function VenueDetailsPage(props: {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
     const t = await getTranslations("VenueDetails");
+    const tAmenities = await getTranslations("amenities");
     const tCommon = await getTranslations();
 
     const { data: slugVenue } = await supabase
@@ -417,7 +418,9 @@ export default async function VenueDetailsPage(props: {
                                     {(venue.amenities as string[]).map((amenity: string) => {
                                         const data = AMENITY_DATA[amenity];
                                         const IconComp = data?.icon;
-                                        const label = data?.[locale as 'ar' | 'fr' | 'en'] || amenity;
+                                        // Normalise to the canonical Title Case key used in messages (e.g. "air_conditioning" → look up via AMENITY_DATA first)
+                                        const canonicalKey = data?.en ?? amenity;
+                                        const label = tAmenities.has(canonicalKey) ? tAmenities(canonicalKey as Parameters<typeof tAmenities>[0]) : (data?.[locale as 'ar' | 'fr' | 'en'] ?? amenity);
                                         return (
                                             <div key={amenity}
                                                 className="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-3 text-sm text-slate-700 hover:border-primary-200 hover:bg-primary-50/50 transition-colors">
@@ -430,6 +433,26 @@ export default async function VenueDetailsPage(props: {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            </section>
+                        )}
+
+                        {/* Offers */}
+                        {venue.offers && (venue.offers as any[]).length > 0 && (
+                            <section className="py-6 border-b border-slate-100">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Tag className="w-5 h-5 text-primary-500" />
+                                    <h2 className="text-lg font-bold text-slate-900">{t("offers_title")}</h2>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {(venue.offers as { title: string; price: number }[]).map((offer, i) => (
+                                        <div key={i} className="flex items-center justify-between rounded-xl bg-primary-50 border border-primary-100 px-5 py-4 hover:bg-primary-100/60 transition-colors">
+                                            <span className="text-sm font-semibold text-primary-800">{offer.title}</span>
+                                            <span className="text-sm font-bold text-primary-600 whitespace-nowrap ms-4">
+                                                {new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(offer.price)} DZD
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             </section>
                         )}
