@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import VenuesMarketplace from "@/components/VenuesMarketplace";
 import Header from "@/components/Header";
 
+export const revalidate = 60;
+
 const SITE_URL = "https://ahjazliqaati.com";
 
 export async function generateMetadata(props: {

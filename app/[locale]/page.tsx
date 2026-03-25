@@ -8,6 +8,8 @@ import Pricing from '@/components/Pricing';
 import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 
+export const revalidate = 60; // Revalidate every 60 seconds so deleted/new venues show up quickly
+
 const SITE_URL = 'https://ahjazliqaati.com';
 
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {

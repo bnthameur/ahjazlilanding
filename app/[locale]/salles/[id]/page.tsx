@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+
+export const revalidate = 0; // Always fresh — venue data changes frequently
 import { notFound } from "next/navigation";
 import {
     MapPin,
@@ -189,7 +191,7 @@ export default async function VenueDetailsPage(props: {
     const wilayaLabel = getWilayaLabel(tCommon, venue.wilaya || venue.location);
     const locationLabel = [venue.city, wilayaLabel || venue.location].filter(Boolean).join(", ");
     const contactPhone = venue.phone || venue.profiles?.phone || null;
-    const contactEmail = venue.contact_email || venue.profiles?.email || null;
+    // Email hidden from public page for data security — inquiries go through the form instead
     const contactWhatsapp = venue.whatsapp || null;
     const categoryLabel = getCategoryLabel(venue.category, locale);
 
@@ -550,7 +552,7 @@ export default async function VenueDetailsPage(props: {
                         )}
 
                         {/* Contact (mobile) */}
-                        {(contactPhone || contactWhatsapp || contactEmail) && (
+                        {(contactPhone || contactWhatsapp) && (
                             <section className="lg:hidden py-6">
                                 <h3 className="text-base font-bold text-slate-900 mb-4">{t("contact_info")}</h3>
                                 <div className="space-y-2.5">
@@ -578,80 +580,25 @@ export default async function VenueDetailsPage(props: {
                                             </div>
                                         </a>
                                     )}
-                                    {contactEmail && (
-                                        <a href={`mailto:${contactEmail}`}
-                                            className="flex items-center gap-3 rounded-xl border border-slate-200 p-3.5 hover:border-slate-300 hover:shadow-sm transition">
-                                            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
-                                                <Mail className="w-5 h-5 text-slate-600" />
-                                            </div>
-                                            <div>
-                                                <div className="text-xs text-slate-500">{t("email_owner")}</div>
-                                                <div className="font-semibold text-slate-900 text-sm truncate max-w-[200px]">{contactEmail}</div>
-                                            </div>
-                                        </a>
-                                    )}
                                 </div>
                             </section>
                         )}
                     </div>
 
-                    {/* ===== Right Sidebar (Desktop) ===== */}
+                    {/* ===== Right Sidebar (Desktop) — Booking Card with Inquiry Form ===== */}
                     <div className="hidden lg:block">
-                        <div className="sticky top-24 space-y-4">
-                            {/* Price + Booking Card */}
-                            <div className="bg-white rounded-2xl border border-slate-200 shadow-lg shadow-slate-200/50 overflow-hidden">
-                                {/* Price header */}
-                                {formattedPrice && (
-                                    <div className="bg-gradient-to-r from-primary-50 to-primary-100/50 px-6 py-4 border-b border-primary-100">
-                                        <div className="text-2xl font-bold text-slate-900">
-                                            {formattedPrice} <span className="text-base font-medium text-slate-500">DZD</span>
-                                        </div>
-                                        <div className="text-xs text-slate-500 mt-0.5">{t("price_label")}</div>
-                                    </div>
-                                )}
-                                <div className="p-5 space-y-3">
-                                    {contactPhone && (
-                                        <a href={`tel:${contactPhone}`}
-                                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 text-sm transition-colors shadow-sm">
-                                            <Phone className="w-4 h-4" /> {t("call_now")}
-                                        </a>
-                                    )}
-                                    {contactWhatsapp && (
-                                        <a href={`https://wa.me/${contactWhatsapp}`} target="_blank" rel="noreferrer"
-                                            className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 text-sm transition-colors shadow-sm">
-                                            <MessageCircle className="w-4 h-4" /> {t("whatsapp")}
-                                        </a>
-                                    )}
-                                    {contactEmail && (
-                                        <a href={`mailto:${contactEmail}`}
-                                            className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold py-3 text-sm transition-colors">
-                                            <Mail className="w-4 h-4" /> {t("email_owner")}
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Quick info sidebar card */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-                                <h4 className="text-sm font-bold text-slate-900 mb-3">{t("contact_info")}</h4>
-                                <div className="space-y-3 text-sm">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-500">{t("capacity_label")}</span>
-                                        <span className="font-semibold text-slate-900">{venue.capacity || "—"}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-slate-500">{t("location_label")}</span>
-                                        <span className="font-semibold text-slate-900 truncate ms-4">{locationLabel || "—"}</span>
-                                    </div>
-                                    {categoryLabel && (
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-slate-500">Type</span>
-                                            <span className="font-semibold text-slate-900">{categoryLabel}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        <VenueBookingCard
+                            venueId={venue.id}
+                            venueTitle={venue.title}
+                            city={venue.city}
+                            wilaya={venue.wilaya}
+                            location={venue.location}
+                            capacity={venue.capacity}
+                            price={venue.price}
+                            phone={contactPhone}
+                            whatsapp={contactWhatsapp}
+                            contactEmail={null}
+                        />
                     </div>
                 </div>
             </div>
@@ -667,7 +614,7 @@ export default async function VenueDetailsPage(props: {
                 capacity={venue.capacity}
                 phone={contactPhone}
                 whatsapp={contactWhatsapp}
-                contactEmail={contactEmail}
+                contactEmail={null}
                 bookNowLabel={t("book_now")}
                 priceLabel={t("price_label")}
             />
@@ -682,7 +629,7 @@ export default async function VenueDetailsPage(props: {
                     address: { "@type": "PostalAddress", addressLocality: venue.city || "", addressRegion: venue.wilaya || venue.location || "", addressCountry: "DZ" },
                     maximumAttendeeCapacity: venue.capacity || undefined,
                     ...(venue.price ? { priceRange: `${venue.price} DZD`, offers: { "@type": "Offer", price: venue.price, priceCurrency: "DZD", availability: "https://schema.org/InStock" } } : {}),
-                    telephone: contactPhone || undefined, email: contactEmail || undefined,
+                    telephone: contactPhone || undefined,
                     ...(venue.amenities?.length ? { amenityFeature: (venue.amenities as string[]).map((a: string) => ({ "@type": "LocationFeatureSpecification", name: a, value: true })) } : {}),
                 }),
             }} />
