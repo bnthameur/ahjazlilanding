@@ -10,11 +10,9 @@ import {
     MapPin,
     Users,
     Coins,
-    ArrowLeft,
     Sparkles,
     Phone,
     MessageCircle,
-    Mail,
     Star,
     Tag,
     Car,
@@ -40,6 +38,7 @@ import ImageGallery, { MediaItem } from "@/components/ImageGallery";
 import MobileStickyBar from "@/components/MobileStickyBar";
 import VenueHeroGallery, { HeroMediaItem } from "@/components/VenueHeroGallery";
 import ShareButton from "@/components/ShareButton";
+import InquiryForm from "@/components/InquiryForm";
 import { getWilayaLabel } from "@/lib/wilayas";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -79,14 +78,16 @@ export async function generateMetadata(props: {
 
     const { data: slugVenue } = await supabase
         .from("venues")
-        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, venue_media(url, media_type, is_cover)")
+        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, status, venue_media(url, media_type, is_cover)")
         .eq("slug", id)
+        .eq("status", "published")
         .maybeSingle();
 
     const venue = slugVenue ?? (await supabase
         .from("venues")
-        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, venue_media(url, media_type, is_cover)")
+        .select("id, slug, title, description, location, wilaya, city, category, price, capacity, images, status, venue_media(url, media_type, is_cover)")
         .eq("id", id)
+        .eq("status", "published")
         .maybeSingle()).data;
 
     if (!venue) return { title: "Venue Not Found" };
@@ -164,17 +165,23 @@ export default async function VenueDetailsPage(props: {
 
     const { data: slugVenue } = await supabase
         .from("venues")
-        .select("*, profiles(full_name, phone, email), venue_media(*)")
+        .select("*, profiles(full_name, phone, status), venue_media(*)")
         .eq("slug", id)
+        .eq("status", "published")
         .maybeSingle();
 
     const venue = slugVenue ?? (await supabase
         .from("venues")
-        .select("*, profiles(full_name, phone, email), venue_media(*)")
+        .select("*, profiles(full_name, phone, status), venue_media(*)")
         .eq("id", id)
+        .eq("status", "published")
         .maybeSingle()).data;
 
     if (!venue) notFound();
+
+    // Ensure the owner's account is active — rejected/suspended owners must not expose public pages
+    const ownerProfile = venue.profiles as { full_name?: string | null; phone?: string | null; status?: string | null } | null;
+    if (ownerProfile?.status && ownerProfile.status !== "active") notFound();
 
     // Fetch reviews
     const { data: reviews } = await supabase
@@ -190,8 +197,8 @@ export default async function VenueDetailsPage(props: {
 
     const wilayaLabel = getWilayaLabel(tCommon, venue.wilaya || venue.location);
     const locationLabel = [venue.city, wilayaLabel || venue.location].filter(Boolean).join(", ");
-    const contactPhone = venue.phone || venue.profiles?.phone || null;
-    // Email hidden from public page for data security — inquiries go through the form instead
+    const contactPhone = venue.phone || ownerProfile?.phone || null;
+    // Owner email is never exposed on public pages — inquiries go through the form only
     const contactWhatsapp = venue.whatsapp || null;
     const categoryLabel = getCategoryLabel(venue.category, locale);
 
@@ -551,9 +558,9 @@ export default async function VenueDetailsPage(props: {
                             </section>
                         )}
 
-                        {/* Contact (mobile) */}
+                        {/* Contact (mobile only — phone / WhatsApp quick links) */}
                         {(contactPhone || contactWhatsapp) && (
-                            <section className="lg:hidden py-6">
+                            <section className="lg:hidden py-6 border-b border-slate-100">
                                 <h3 className="text-base font-bold text-slate-900 mb-4">{t("contact_info")}</h3>
                                 <div className="space-y-2.5">
                                     {contactPhone && (
@@ -583,6 +590,12 @@ export default async function VenueDetailsPage(props: {
                                 </div>
                             </section>
                         )}
+
+                        {/* ===== Inquiry Form — inline in left column ===== */}
+                        {/* Visible on mobile always; on desktop shown below the main content alongside the sidebar */}
+                        <section className="py-6" id="inquiry">
+                            <InquiryForm venueId={venue.id} venueTitle={venue.title} />
+                        </section>
                     </div>
 
                     {/* ===== Right Sidebar (Desktop) — Booking Card with Inquiry Form ===== */}
