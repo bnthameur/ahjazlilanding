@@ -106,7 +106,13 @@
       "inquiries": "Direct Inquiries"
     },
     "cta": "Start Listing",
-    "trust_message": "Two strong options for venue owners who want better reach all year."
+    "trust_message": "Two strong options for venue owners who want better reach all year.",
+    "free": {
+      "badge": "Free for now",
+      "price": "Free for every venue",
+      "price_subtitle": "All features are unlocked for a limited time. No payment needed.",
+      "plan_price": "Free"
+    }
   },
   "FAQ": {
     "badge": "FAQ",

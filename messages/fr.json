@@ -106,7 +106,13 @@
       "inquiries": "Demandes Directes"
     },
     "cta": "Commencer",
-    "trust_message": "Deux formules solides pour gagner en visibilité toute l’année."
+    "trust_message": "Deux formules solides pour gagner en visibilité toute l’année.",
+    "free": {
+      "badge": "Gratuit pour le moment",
+      "price": "Gratuit pour toutes les salles",
+      "price_subtitle": "Toutes les fonctionnalités sont débloquées pour une durée limitée. Aucun paiement requis.",
+      "plan_price": "Gratuit"
+    }
   },
   "FAQ": {
     "badge": "FAQ",

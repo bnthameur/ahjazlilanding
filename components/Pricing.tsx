@@ -1,13 +1,27 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { Emoji } from 'react-apple-emojis';
 import Image from 'next/image';
 
+// Admin "free platform" switch, exposed by the venue app (ahjazlivenue → /api/platform-mode)
+const PLATFORM_MODE_URL = 'https://app.ahjazliqaati.com/api/platform-mode';
+
 export default function Pricing() {
   const t = useTranslations('Pricing');
   const locale = useLocale();
+  const [freeMode, setFreeMode] = useState(false);
+
+  useEffect(() => {
+    fetch(PLATFORM_MODE_URL)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => setFreeMode(Boolean(data?.freeMode)))
+      .catch(() => {
+        // Keep showing paid pricing if the app can't be reached
+      });
+  }, []);
   const plans = [
     {
       title: t('plans.standard_title'),
@@ -93,9 +107,11 @@ export default function Pricing() {
           <div className="rounded-[2rem] border border-white/70 bg-white/80 backdrop-blur-xl p-6 sm:p-8 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.35)]">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-400">{t('offer_badge')}</p>
-                <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{t('price')}</h3>
-                <p className="mt-2 text-sm sm:text-base text-slate-600">{t('price_subtitle')}</p>
+                <p className={`text-sm font-semibold uppercase tracking-[0.22em] ${freeMode ? 'text-green-600' : 'text-slate-400'}`}>
+                  {freeMode ? t('free.badge') : t('offer_badge')}
+                </p>
+                <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">{freeMode ? t('free.price') : t('price')}</h3>
+                <p className="mt-2 text-sm sm:text-base text-slate-600">{freeMode ? t('free.price_subtitle') : t('price_subtitle')}</p>
               </div>
               <div className="rounded-2xl bg-slate-950 px-4 py-3 text-white shadow-lg">
                 <Image src="/logo.png" alt="Ahjazli Qaati" width={100} height={32} className="h-9 w-auto object-contain brightness-0 invert opacity-80" unoptimized />
@@ -109,11 +125,11 @@ export default function Pricing() {
                   key={plan.title}
                   className={`relative rounded-[1.75rem] border ${plan.border} bg-gradient-to-br ${plan.accent} p-6 shadow-sm ${plan.limitedOffer ? 'ring-2 ring-amber-400/50' : ''}`}
                 >
-                  {plan.limitedOffer && (
+                  {(plan.limitedOffer || freeMode) && (
                     <div className="absolute -top-3 start-5">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1 text-xs font-bold text-white shadow-lg shadow-amber-500/25">
                         <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                        {t('limited_offer')}
+                        {freeMode ? t('free.badge') : t('limited_offer')}
                       </span>
                     </div>
                   )}
@@ -122,7 +138,14 @@ export default function Pricing() {
                       <div className={`text-xs uppercase tracking-[0.22em] ${plan.featured ? 'text-primary-200' : 'text-slate-400'}`}>
                         {plan.title}
                       </div>
-                      <div className={`mt-3 text-4xl font-bold ${plan.text}`}>{plan.price}</div>
+                      {freeMode ? (
+                        <div className="mt-3 flex items-baseline gap-3">
+                          <span className={`text-4xl font-bold ${plan.featured ? 'text-green-300' : 'text-green-600'}`}>{t('free.plan_price')}</span>
+                          <span className={`text-lg line-through ${plan.featured ? 'text-slate-400' : 'text-slate-400'}`}>{plan.price}</span>
+                        </div>
+                      ) : (
+                        <div className={`mt-3 text-4xl font-bold ${plan.text}`}>{plan.price}</div>
+                      )}
                       <div className={`mt-2 text-sm ${plan.featured ? 'text-slate-200' : 'text-slate-600'}`}>{plan.subtitle}</div>
                     </div>
                     <div className={`rounded-2xl px-3 py-2 text-sm font-semibold ${plan.featured ? 'bg-white/10 text-white' : 'bg-white text-primary-700 shadow-sm'}`}>
