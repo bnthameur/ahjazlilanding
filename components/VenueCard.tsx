@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation';
 import { useLocale, useTranslations } from "next-intl";
 import { MapPin, Users } from "lucide-react";
 import { getWilayaLabel } from "@/lib/wilayas";
+import { getCategoryLabel, getListingCategory, isVenueCategory } from "@/lib/listing-types";
 
 interface Venue {
     id: string;
@@ -45,6 +46,9 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
         : null;
 
     const venueSlug = venue.slug || venue.id;
+    const isVenue = isVenueCategory(venue.category);
+    const categoryLabel = getCategoryLabel(venue.category, locale);
+    const PlaceholderIcon = getListingCategory(venue.category)?.icon;
 
     // Horizontal layout (mobile list view) - entire card is a link
     if (horizontal) {
@@ -65,7 +69,7 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                         />
                     ) : (
                         <div className="flex h-full items-center justify-center text-slate-300 min-h-[100px]">
-                            <span className="text-3xl">🏛️</span>
+                            {PlaceholderIcon ? <PlaceholderIcon className="h-9 w-9" strokeWidth={1.5} /> : <span className="text-3xl">🏛️</span>}
                         </div>
                     )}
                     {formattedPrice && (
@@ -90,11 +94,13 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                         </p>
                     </div>
                     <div className="mt-2 flex items-center justify-between">
-                        {formattedCapacity && (
+                        {isVenue ? formattedCapacity && (
                             <div className="flex items-center gap-1 text-xs text-slate-500">
                                 <Users className="h-3 w-3 text-primary-400" />
                                 <span>{formattedCapacity}</span>
                             </div>
+                        ) : (
+                            <span className="text-xs text-slate-500 truncate">{categoryLabel}</span>
                         )}
                         <span className="ms-auto text-xs font-semibold text-primary-600 group-hover:text-primary-700 transition">
                             {t('view_details')} →
@@ -121,7 +127,7 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                     />
                 ) : (
                     <div className="flex h-full items-center justify-center text-slate-400">
-                        <span className="text-4xl">🏛️</span>
+                        {PlaceholderIcon ? <PlaceholderIcon className="h-12 w-12" strokeWidth={1.5} /> : <span className="text-4xl">🏛️</span>}
                     </div>
                 )}
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/70 to-transparent" />
@@ -151,10 +157,14 @@ export function VenueCard({ venue, compact = false, horizontal = false }: VenueC
                 </p>
 
                 <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-sm">
-                    <div className="flex items-center gap-1.5 font-medium text-slate-600">
-                        <Users className="h-4 w-4 text-primary-500" />
-                        <span>{formattedCapacity || '-'}</span>
-                    </div>
+                    {isVenue ? (
+                        <div className="flex items-center gap-1.5 font-medium text-slate-600">
+                            <Users className="h-4 w-4 text-primary-500" />
+                            <span>{formattedCapacity || '-'}</span>
+                        </div>
+                    ) : (
+                        <span className="font-medium text-slate-600 truncate">{categoryLabel}</span>
+                    )}
                     <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary-600 group-hover:text-primary-700 transition">
                         {t('view_details')} <span aria-hidden="true">→</span>
                     </span>

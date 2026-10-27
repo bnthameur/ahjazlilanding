@@ -8,6 +8,7 @@ import { Search, X, MapPin, ChevronDown, SlidersHorizontal } from "lucide-react"
 import { VenueCard } from "@/components/VenueCard";
 import VenueOnboarding from "@/components/VenueOnboarding";
 import { WILAYAS, getWilayas } from "@/lib/wilayas";
+import { getCategoriesForGroup, getCategoryLabel, type ListingGroupId } from "@/lib/listing-types";
 
 type Venue = {
     id: string;
@@ -32,13 +33,16 @@ type CityOption = {
 
 interface VenuesMarketplaceProps {
     venues: Venue[];
+    /** Which kind of listing this page browses; non-venue pages live at /services?type=<group>. */
+    group?: ListingGroupId;
+    title?: string;
 }
 
 type BottomSheetType = "category" | "location" | "city" | null;
 
 const ONBOARDING_KEY = "ahj_onboarding_done";
 
-export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
+export default function VenuesMarketplace({ venues, group = "venue", title }: VenuesMarketplaceProps) {
     const t = useTranslations("VenuesList");
     const tCommon = useTranslations();
     const locale = useLocale();
@@ -46,12 +50,20 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
     const router = useRouter();
     const pathname = usePathname();
     const wilayas = useMemo(() => getWilayas(tCommon), [tCommon]);
-    const categoryOptions = useMemo(() => ([
-        { id: "wedding-hall", label: tCommon("Footer.links.wedding_halls") },
-        { id: "event-salon", label: tCommon("Footer.links.event_salons") },
-        { id: "conference-room", label: tCommon("Footer.links.conference_rooms") },
-        { id: "garden-outdoor", label: tCommon("Footer.links.outdoor_venues") },
-    ]), [tCommon]);
+    const categoryOptions = useMemo(() => group === "venue"
+        ? [
+            { id: "wedding-hall", label: tCommon("Footer.links.wedding_halls") },
+            { id: "event-salon", label: tCommon("Footer.links.event_salons") },
+            { id: "conference-room", label: tCommon("Footer.links.conference_rooms") },
+            { id: "garden-outdoor", label: tCommon("Footer.links.outdoor_venues") },
+        ]
+        : getCategoriesForGroup(group).map((c) => ({ id: c.id, label: getCategoryLabel(c.id, locale) })),
+    [tCommon, group, locale]);
+    // Filters live in the query string; /services also needs to keep its ?type=
+    const baseParams = useCallback(
+        () => new URLSearchParams(group === "venue" ? undefined : { type: group }),
+        [group]
+    );
 
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("");
@@ -71,7 +83,8 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
         const hasUrlParams = !!(searchParams.get("category") || searchParams.get("location") || searchParams.get("q"));
         const alreadyDone = typeof sessionStorage !== "undefined" && sessionStorage.getItem(ONBOARDING_KEY) === "1";
 
-        if (!hasUrlParams && !alreadyDone) {
+        // The hall-finding wizard only makes sense on the venues page
+        if (!hasUrlParams && !alreadyDone && group === "venue") {
             setShowOnboarding(true);
         }
         setOnboardingReady(true);
@@ -134,21 +147,22 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
         city?: string;
         q?: string;
     }) => {
-        const sp = new URLSearchParams();
+        const sp = baseParams();
         if (params.category) sp.set("category", params.category);
         if (params.location) sp.set("location", params.location);
         if (params.city) sp.set("city", params.city);
         if (params.q) sp.set("q", params.q);
         const qs = sp.toString();
         router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
-    }, [router, pathname]);
+    }, [router, pathname, baseParams]);
 
     const clearFilters = () => {
         setSearchQuery("");
         setSelectedCategory("");
         setSelectedWilaya("");
         setSelectedCity("");
-        router.replace(pathname, { scroll: false });
+        const qs = baseParams().toString();
+        router.replace(`${pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
     };
 
     // Handle onboarding completion
@@ -218,7 +232,7 @@ export default function VenuesMarketplace({ venues }: VenuesMarketplaceProps) {
                 <div className="container mx-auto px-4">
                     {/* Title row */}
                     <div className="flex items-center justify-between gap-3 py-3">
-                        <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">{t("title")}</h1>
+                        <h1 className="text-base sm:text-lg font-bold text-slate-900 truncate">{title ?? t("title")}</h1>
                         <span className="text-xs text-slate-500 shrink-0 font-medium">
                             {t("results_count", { count: resultCount })}
                         </span>

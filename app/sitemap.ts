@@ -52,6 +52,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         });
     }
 
+    // Services & rentals, one page per listing group
+    for (const type of ['job', 'artist', 'service', 'rental']) {
+        for (const locale of locales) {
+            const path = `/services?type=${type}`;
+            staticPages.push({
+                url: locale === 'ar' ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`,
+                lastModified: now,
+                changeFrequency: 'daily',
+                priority: 0.8,
+                alternates: {
+                    languages: { ar: `${SITE_URL}${path}`, fr: `${SITE_URL}/fr${path}`, en: `${SITE_URL}/en${path}` },
+                },
+            });
+        }
+    }
+
     // Link tree
     for (const locale of locales) {
         staticPages.push({

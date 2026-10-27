@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 import VenuesMarketplace from "@/components/VenuesMarketplace";
 import Header from "@/components/Header";
+import { isVenueCategory } from "@/lib/listing-types";
 
 export const revalidate = 60;
 
@@ -67,7 +68,7 @@ export default async function VenuesPage(props: {
         <>
             <Header />
             <div className="pt-16 sm:pt-20">
-                <VenuesMarketplace venues={venues || []} />
+                <VenuesMarketplace venues={(venues || []).filter((v) => isVenueCategory(v.category))} />
             </div>
         </>
     );

@@ -42,6 +42,7 @@ import InquiryForm from "@/components/InquiryForm";
 import { getWilayaLabel } from "@/lib/wilayas";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { getCategoryLabel as getListingCategoryLabel, getGroupLabel, getListingGroupId } from "@/lib/listing-types";
 
 interface VenueMedia {
     id: string;
@@ -54,16 +55,8 @@ interface VenueMedia {
     is_cover?: boolean | null;
 }
 
-const CATEGORY_LABELS: Record<string, Record<string, string>> = {
-    "wedding-hall": { ar: "قاعة أفراح", fr: "Salle des Fêtes", en: "Wedding Hall" },
-    "event-salon": { ar: "صالون مناسبات", fr: "Salon Événementiel", en: "Event Salon" },
-    "conference-room": { ar: "قاعة مؤتمرات", fr: "Salle de Conférence", en: "Conference Room" },
-    "garden-outdoor": { ar: "حديقة / فضاء مفتوح", fr: "Jardin / Extérieur", en: "Garden / Outdoor" },
-};
-
 function getCategoryLabel(category: string | null | undefined, locale: string): string | null {
-    if (!category) return null;
-    return CATEGORY_LABELS[category]?.[locale] ?? CATEGORY_LABELS[category]?.["en"] ?? null;
+    return getListingCategoryLabel(category, locale) || null;
 }
 
 const SITE_URL = "https://ahjazliqaati.com";
@@ -96,13 +89,7 @@ export async function generateMetadata(props: {
     const firstImage = coverMedia?.url || (venue.venue_media as any[])?.[0]?.url || (venue.images as string[])?.[0] || null;
 
     const locationText = [venue.city, venue.wilaya, locale === "ar" ? "الجزائر" : "Algeria"].filter(Boolean).join(", ");
-    const categoryLabels: Record<string, Record<string, string>> = {
-        "wedding-hall": { ar: "قاعة أفراح", fr: "Salle des Fêtes", en: "Wedding Hall" },
-        "event-salon": { ar: "صالون مناسبات", fr: "Salon Événementiel", en: "Event Salon" },
-        "conference-room": { ar: "قاعة مؤتمرات", fr: "Salle de Conférence", en: "Conference Room" },
-        "garden-outdoor": { ar: "حديقة / فضاء مفتوح", fr: "Jardin / Extérieur", en: "Garden / Outdoor" },
-    };
-    const catLabel = venue.category ? categoryLabels[venue.category]?.[locale] || "" : "";
+    const catLabel = getCategoryLabel(venue.category, locale) || "";
 
     const titleSeo = locale === "ar"
         ? `${venue.title} — ${catLabel} في ${locationText}`
@@ -201,6 +188,9 @@ export default async function VenueDetailsPage(props: {
     // Owner email is never exposed on public pages — inquiries go through the form only
     const contactWhatsapp = venue.whatsapp || null;
     const categoryLabel = getCategoryLabel(venue.category, locale);
+    const listingGroup = getListingGroupId(venue.category);
+    const sectionHref = listingGroup === "venue" ? "/salles" : `/services?type=${listingGroup}`;
+    const sectionLabel = getGroupLabel(listingGroup, locale);
 
     const venueMediaRows: VenueMedia[] = (venue.venue_media as VenueMedia[]) || [];
     const allMedia: MediaItem[] = venueMediaRows.length > 0
@@ -269,7 +259,7 @@ export default async function VenueDetailsPage(props: {
                 <nav className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 overflow-x-auto" aria-label="Breadcrumb">
                     <Link href="/" className="hover:text-primary-600 transition-colors whitespace-nowrap">{breadcrumbHome}</Link>
                     <span className="text-slate-300">/</span>
-                    <Link href="/salles" className="hover:text-primary-600 transition-colors whitespace-nowrap">{breadcrumbVenues}</Link>
+                    <Link href={sectionHref} className="hover:text-primary-600 transition-colors whitespace-nowrap">{sectionLabel}</Link>
                     {categoryLabel && (
                         <>
                             <span className="text-slate-300">/</span>
