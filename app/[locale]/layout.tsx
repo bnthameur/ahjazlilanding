@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { arabicFont } from '@/lib/fonts';
@@ -106,6 +107,10 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  // Requests like /favicon.png bypass the i18n middleware and land here with
+  // a bogus locale, which crashes Intl.NumberFormat — 404 them instead.
+  if (!(routing.locales as readonly string[]).includes(locale)) notFound();
+
   const messages = await getMessages();
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
   const fontClass = locale === 'ar' ? arabicFont.className : 'font-parkinsans';
